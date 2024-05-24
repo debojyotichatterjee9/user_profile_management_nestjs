@@ -13,6 +13,7 @@ import { Contact } from './user/entities/user.contact.entity';
 import { SocialProfile } from './user/entities/user.social.entity';
 import { Avatar } from './user/entities/user.avatar.entity';
 import { MetaData } from './user/entities/user.metadata.entity';
+import { Location } from './user/entities/user.location.entity';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -28,7 +29,6 @@ import { MetaData } from './user/entities/user.metadata.entity';
       synchronize: true,
       logging: true,
       entities: [
-        User,
         Name,
         Authentication,
         Identification,
@@ -39,6 +39,7 @@ import { MetaData } from './user/entities/user.metadata.entity';
         SocialProfile,
         Avatar,
         MetaData,
+        User,
       ],
       subscribers: [],
       migrations: [],

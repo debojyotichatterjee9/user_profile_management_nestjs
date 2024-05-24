@@ -4,8 +4,8 @@ import {
   JoinColumn,
   OneToOne,
   PrimaryGeneratedColumn,
-  Relation,
 } from 'typeorm';
+import { Location } from './user.location.entity';
 import { Timezone } from './user.timezone.entity';
 
 @Entity({ name: 'addresses' })
@@ -43,7 +43,7 @@ export class Address {
 
   @OneToOne(() => Timezone, { cascade: true, eager: true })
   @JoinColumn()
-  timezone: Relation<Timezone>;
+  timezone: Timezone;
 
   @Column({ default: false })
   is_default: boolean;

@@ -1,11 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  OneToOne,
-  Relation,
-} from 'typeorm';
-import { Address } from './user.address.entity';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: 'timezones' })
 export class Timezone {
@@ -16,7 +9,4 @@ export class Timezone {
 
   @Column({ nullable: true })
   zone: string;
-
-  @OneToOne(() => Address, (address) => address.timezone)
-  user: Relation<Address>;
 }
