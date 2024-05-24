@@ -27,7 +27,7 @@ export class User {
 
   @OneToOne(() => Name, (name) => name.user, { cascade: true, eager: true })
   @JoinColumn()
-  name: Relation<Name>;
+  name: Name;
 
   @Column({ unique: true, nullable: false })
   email: string;
@@ -42,10 +42,10 @@ export class User {
   @JoinColumn()
   authentication: Authentication;
 
-  @OneToMany(() => Identification, (identification) => identification.id, {
+  @OneToMany(() => Identification, (identification) => identification.user, {
     cascade: true,
   })
-  identification: Identification[];
+  identification: Relation<Identification[]>;
 
   @OneToMany(() => Address, (address) => address.id, { cascade: true })
   address: Address[];

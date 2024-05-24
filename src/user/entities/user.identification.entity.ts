@@ -1,4 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Relation,
+} from 'typeorm';
+import { User } from './user.entity';
 
 @Entity({ name: 'identifications' })
 export class Identification {
@@ -10,4 +17,7 @@ export class Identification {
 
   @Column({ nullable: true })
   value: string;
+
+  @ManyToOne(() => User, (user) => user.id)
+  user: Relation<User>;
 }

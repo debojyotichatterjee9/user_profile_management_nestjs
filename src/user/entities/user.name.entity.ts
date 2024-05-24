@@ -26,6 +26,6 @@ export class Name {
   @Column({ nullable: true })
   name_suffix: string;
 
-  @OneToOne(() => User, (user) => user.name)
+  @OneToOne(() => User, (user) => user.id)
   user: Relation<User>;
 }
