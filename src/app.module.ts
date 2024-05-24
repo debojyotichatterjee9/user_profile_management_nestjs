@@ -3,6 +3,16 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from './user/entities/user.entity';
+import { Name } from './user/entities/user.name.entity';
+import { Authentication } from './user/entities/user.authentication.entity';
+import { Identification } from './user/entities/user.identification.entity';
+import { Timezone } from './user/entities/user.timezone.entity';
+import { Address } from './user/entities/user.address.entity';
+import { Contact } from './user/entities/user.contact.entity';
+import { SocialProfile } from './user/entities/user.social.entity';
+import { Avatar } from './user/entities/user.avatar.entity';
+import { MetaData } from './user/entities/user.metadata.entity';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -17,7 +27,19 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       },
       synchronize: true,
       logging: true,
-      entities: [],
+      entities: [
+        User,
+        Name,
+        Authentication,
+        Identification,
+        Location,
+        Timezone,
+        Address,
+        Contact,
+        SocialProfile,
+        Avatar,
+        MetaData,
+      ],
       subscribers: [],
       migrations: [],
     }),
