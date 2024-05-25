@@ -47,16 +47,16 @@ export class User {
   })
   identification: Relation<Identification[]>;
 
-  @OneToMany(() => Address, (address) => address.id, { cascade: true })
-  address: Address[];
+  @OneToMany(() => Address, (address) => address.user, { cascade: true })
+  address: Relation<Address[]>;
 
-  @OneToMany(() => Contact, (contact) => contact.id, { cascade: true })
-  contact: Contact[];
+  @OneToMany(() => Contact, (contact) => contact.user, { cascade: true })
+  contact: Relation<Contact[]>;
 
-  @OneToMany(() => SocialProfile, (socialProfile) => socialProfile.id, {
+  @OneToMany(() => SocialProfile, (socialProfile) => socialProfile.user, {
     cascade: true,
   })
-  social_profiles: SocialProfile[];
+  social_profiles: Relation<SocialProfile[]>;
 
   @OneToOne(() => Avatar, { cascade: true, eager: true })
   @JoinColumn()

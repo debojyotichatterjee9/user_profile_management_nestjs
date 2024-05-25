@@ -36,4 +36,14 @@ export class MetaData {
 
   @Column({ type: 'timestamp', nullable: true })
   deleted_on: Date;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  created_on: Date;
+
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
+  updated_on: Date;
 }

@@ -2,16 +2,22 @@ import {
   Column,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
+  Relation,
 } from 'typeorm';
 import { Location } from './user.location.entity';
 import { Timezone } from './user.timezone.entity';
+import { User } from './user.entity';
 
 @Entity({ name: 'addresses' })
 export class Address {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @ManyToOne(() => User, (user) => user.id)
+  user: Relation<User>;
 
   @Column({ nullable: true, type: 'varchar', length: 255 })
   type: string;
@@ -47,4 +53,14 @@ export class Address {
 
   @Column({ default: false })
   is_default: boolean;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  created_on: Date;
+
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
+  updated_on: Date;
 }
