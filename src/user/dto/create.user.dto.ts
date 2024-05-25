@@ -1,23 +1,21 @@
-import {
-  IsString,
-  IsEmail,
-  IsOptional,
-  IsUUID,
-  IsObject,
-  ValidateNested,
-  IsArray,
-} from 'class-validator';
-import { NameDto } from './sub-dtos/user.name.dto';
-import { AuthenticationDto } from './sub-dtos/user.authentication.dto';
 import { Type } from 'class-transformer';
-import { IdentificationDto } from './sub-dtos/user.identification.dto';
-import { Address } from '../entities/user.address.entity';
-import { ContactDto } from './sub-dtos/user.contact.dto';
-import { SocialProfile } from '../entities/user.social.entity';
-import { AvatarDto } from './sub-dtos/user.avatar.dto';
-import { SocialProfileDto } from './sub-dtos/user.social.dto';
-import { MetaDataDto } from './sub-dtos/user.metadata.dto';
+import {
+  IsArray,
+  IsEmail,
+  IsObject,
+  IsOptional,
+  IsString,
+  IsUUID,
+  ValidateNested,
+} from 'class-validator';
 import { AddressDto } from './sub-dtos/user.address.dto';
+import { AuthenticationDto } from './sub-dtos/user.authentication.dto';
+import { AvatarDto } from './sub-dtos/user.avatar.dto';
+import { ContactDto } from './sub-dtos/user.contact.dto';
+import { IdentificationDto } from './sub-dtos/user.identification.dto';
+import { MetaDataDto } from './sub-dtos/user.metadata.dto';
+import { NameDto } from './sub-dtos/user.name.dto';
+import { SocialProfileDto } from './sub-dtos/user.social.dto';
 
 export class CreateUserDto {
   @IsObject()
@@ -36,31 +34,37 @@ export class CreateUserDto {
   @IsUUID()
   organizationId?: string;
 
+  @IsOptional()
   @IsObject()
   @ValidateNested({ each: true })
   @Type(() => AuthenticationDto)
   authentication: AuthenticationDto;
 
+  @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => IdentificationDto)
   identification?: IdentificationDto[];
 
+  @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => AddressDto)
   address?: AddressDto[];
 
+  @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => ContactDto)
   contact?: ContactDto[];
 
+  @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => SocialProfileDto)
   social_profiles?: SocialProfileDto[];
 
+  @IsOptional()
   @IsObject()
   @ValidateNested({ each: true })
   @Type(() => AvatarDto)
