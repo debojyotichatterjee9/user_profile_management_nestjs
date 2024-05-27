@@ -6,10 +6,12 @@ import {
   Patch,
   Param,
   Delete,
+  Query
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create.user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { PaginationQueryParams } from './dto/fetch.user.list.dto';
 
 @Controller('user')
 export class UserController {
@@ -25,9 +27,9 @@ export class UserController {
     return this.userService.createUser(createUserDto);
   }
 
-  @Get()
-  findAll() {
-    return this.userService.findAll();
+  @Get('list')
+  userList(@Query() queryParams: PaginationQueryParams) {
+    return this.userService.getUserList(queryParams);
   }
 
   @Get(':id')

@@ -5,6 +5,7 @@ import { User } from './entities/user.entity';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { CreateUserDto } from './dto/create.user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { PaginationQueryParams } from './dto/fetch.user.list.dto';
 
 @Injectable()
 export class UserService {
@@ -40,8 +41,41 @@ export class UserService {
     const user = this.userRepository.create(createUserDto);
     return await this.userRepository.save(user);
   }
-  findAll() {
-    return `This action returns all user`;
+  async getUserList(
+    queryParams: PaginationQueryParams,
+  ): Promise<{ data: User[]; totalCount: number; filterCount: number }> {
+    // TODO: need to fix the type for the line below
+    const { search, page, limit }: { search?: string; page: any; limit: any } =
+      queryParams;
+    const query = this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.name', 'name')
+      .leftJoinAndSelect('user.authentication', 'authentication')
+      .leftJoinAndSelect('user.identification', 'identification')
+      .leftJoinAndSelect('user.address', 'address')
+      .leftJoinAndSelect('user.contact', 'contact')
+      .leftJoinAndSelect('user.social_profiles', 'social_profiles')
+      .leftJoinAndSelect('user.avatar', 'avatar')
+      .leftJoinAndSelect('user.meta_data', 'meta_data');
+
+    if (search) {
+      query.where(
+        'name.first_name ILIKE :search OR name.last_name ILIKE :search OR email ILIKE :search',
+        { search: `%${search}%` },
+      );
+    }
+
+    const [totalCount, filterResult] = await Promise.all([
+      this.userRepository.count(),
+      query
+        .skip((page - 1) * limit)
+        .take(limit)
+        .getManyAndCount(),
+    ]);
+
+    const [data, filterCount] = filterResult;
+
+    return { totalCount, filterCount, data: data };
   }
 
   findOne(id: number) {
