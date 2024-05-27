@@ -1,11 +1,12 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Generated, PrimaryGeneratedColumn } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 
 @Entity({ name: 'authentications' })
 export class Authentication {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-  @Column({ type: 'uuid', default: uuidv4(), unique: true })
+  @Column({ type: 'uuid',  unique: true })
+  @Generated('uuid')
   user_id: string;
 
   @Column({ nullable: true })

@@ -70,6 +70,7 @@ export class CreateUserDto {
   @Type(() => AvatarDto)
   avatar?: AvatarDto;
 
+  @IsOptional()
   @IsObject()
   @ValidateNested({ each: true })
   @Type(() => MetaDataDto)
