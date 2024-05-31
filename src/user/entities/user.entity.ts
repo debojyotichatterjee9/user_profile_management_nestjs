@@ -1,61 +1,93 @@
+import * as crypto from 'crypto';
 import {
-  Entity,
   Column,
+  Entity,
+  Index,
+  JoinColumn,
+  OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
-  AfterInsert,
-  AfterUpdate,
-  AfterRemove,
+  Relation,
 } from 'typeorm';
+import { NIL as NIL_UUID } from 'uuid';
+import { Address } from './user.address.entity';
+import { Authentication } from './user.authentication.entity';
+import { Avatar } from './user.avatar.entity';
+import { Contact } from './user.contact.entity';
+import { Identification } from './user.identification.entity';
+import { MetaData } from './user.metadata.entity';
+import { Name } from './user.name.entity';
+import { SocialProfile } from './user.social.entity';
 
-@Entity()
+@Entity({ name: 'users' })
+@Index(['email'], { unique: true })
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-  @Column({ nullable: false })
-  roleId: string;
-  @Column({ nullable: false })
-  firstName: string;
-  @Column()
-  middleName: string;
-  @Column()
-  lastName: string;
-  @Column({ nullable: false })
-  email: string;
-  @Column({ nullable: false })
-  username: string;
-  @Column('boolean', { default: false })
-  emailVerified: boolean;
-  @Column('boolean', { default: false })
-  phoneVerified: boolean;
-  @Column('boolean', { default: true })
-  isEnabled: boolean;
-  @Column('boolean', { default: false })
-  isDeleted: boolean;
-  @Column({ nullable: true })
-  saltKey: string;
-  @Column({ nullable: true })
-  secretHash: string;
-  @Column({ nullable: true })
-  createdBy: string;
-  @Column({ nullable: true })
-  modifiedBy: string;
-  @CreateDateColumn()
-  createdOn: string;
-  @UpdateDateColumn()
-  modifiedOn: string;
 
-  @AfterInsert()
-  logInsert() {
-    console.log(`User Added --> ${this.email}`);
+  @OneToOne(() => Name, (name) => name.user, { cascade: true, eager: true })
+  @JoinColumn()
+  name: Name;
+
+  @Column({ unique: true, nullable: false })
+  email: string;
+
+  @Column({ nullable: true })
+  username: string;
+
+  @Column({ type: 'uuid', default: NIL_UUID })
+  organization_id: string;
+
+  @OneToOne(() => Authentication, { cascade: true, eager: true })
+  @JoinColumn()
+  authentication: Authentication;
+
+  @OneToMany(() => Identification, (identification) => identification.user, {
+    cascade: true,
+  })
+  identification: Relation<Identification[]>;
+
+  @OneToMany(() => Address, (address) => address.user, { cascade: true })
+  address: Relation<Address[]>;
+
+  @OneToMany(() => Contact, (contact) => contact.user, { cascade: true })
+  contact: Relation<Contact[]>;
+
+  @OneToMany(() => SocialProfile, (socialProfile) => socialProfile.user, {
+    cascade: true,
+  })
+  social_profiles: Relation<SocialProfile[]>;
+
+  @OneToOne(() => Avatar, { cascade: true, eager: true })
+  @JoinColumn()
+  avatar: Avatar;
+
+  @OneToOne(() => MetaData, { cascade: true, eager: true })
+  @JoinColumn()
+  meta_data: MetaData;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  created_on: Date;
+
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
+  updated_on: Date;
+
+  setPassword(password: string) {
+    this.authentication.salt_key = crypto.randomBytes(24).toString('hex');
+    this.authentication.secret_hash = crypto
+      .pbkdf2Sync(password, this.authentication.salt_key, 1000, 64, 'sha512')
+      .toString('hex');
   }
-  @AfterUpdate()
-  logUpdate() {
-    console.log(`User Updated --> ${this.email}`);
-  }
-  @AfterRemove()
-  logRemove() {
-    console.log(`User Removed --> ${this.email}`);
+
+  validatePassword(password: string): boolean {
+    const passwordHash = crypto
+      .pbkdf2Sync(password, this.authentication.salt_key, 1000, 64, 'sha512')
+      .toString('hex');
+
+    return this.authentication.secret_hash === passwordHash;
   }
 }
