@@ -8,14 +8,14 @@ import {
   IsUUID,
   ValidateNested,
 } from 'class-validator';
-import { AddressDto } from './sub-dtos/user.address.dto';
-import { AuthenticationDto } from './sub-dtos/user.authentication.dto';
-import { AvatarDto } from './sub-dtos/user.avatar.dto';
-import { ContactDto } from './sub-dtos/user.contact.dto';
-import { IdentificationDto } from './sub-dtos/user.identification.dto';
-import { MetaDataDto } from './sub-dtos/user.metadata.dto';
-import { NameDto } from './sub-dtos/user.name.dto';
-import { SocialProfileDto } from './sub-dtos/user.social.dto';
+import { AddressDto } from '../sub-dtos/user.address.dto';
+import { AuthenticationDto } from '../sub-dtos/user.authentication.dto';
+import { AvatarDto } from '../sub-dtos/user.avatar.dto';
+import { ContactDto } from '../sub-dtos/user.contact.dto';
+import { IdentificationDto } from '../sub-dtos/user.identification.dto';
+import { MetaDataDto } from '../sub-dtos/user.metadata.dto';
+import { NameDto } from '../sub-dtos/user.name.dto';
+import { SocialProfileDto } from '../sub-dtos/user.social.dto';
 
 export class CreateUserDto {
   @IsObject()

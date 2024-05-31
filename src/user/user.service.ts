@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { RegisterUserDto } from './dto/register-user.dto';
-import { CreateUserDto } from './dto/create.user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { PaginationQueryParams } from './dto/fetch.user.list.dto';
+import { CreateUserDto } from './dto/request.dtos/create.user.dto';
+import { UpdateUserDto } from './dto/request.dtos/update-user.dto';
+import { PaginationQueryParams } from './dto/request.dtos/fetch.user.list.dto';
 
 @Injectable()
 export class UserService {
@@ -43,15 +43,18 @@ export class UserService {
   }
   async getUserList(
     queryParams: PaginationQueryParams,
-  ): Promise<{ data: User[]; totalCount: number; filterCount: number }> {
+  ): Promise<{ totalCount: number; filterCount: number; userList: User[] }> {
     // TODO: need to fix the type for the line below
-    const { search, page, limit }: { search?: string; page: any; limit: any } =
-      queryParams;
+    const {
+      search,
+      page,
+      limit,
+    }: { search?: string; page?: any; limit?: any } = queryParams;
     const query = this.userRepository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.name', 'name')
-      .leftJoinAndSelect('user.authentication', 'authentication')
       .leftJoinAndSelect('user.identification', 'identification')
+      .leftJoinAndSelect('user.authentication', 'authentication')
       .leftJoinAndSelect('user.address', 'address')
       .leftJoinAndSelect('user.contact', 'contact')
       .leftJoinAndSelect('user.social_profiles', 'social_profiles')
@@ -64,18 +67,27 @@ export class UserService {
         { search: `%${search}%` },
       );
     }
+    const totalCount = await this.userRepository.count();
 
-    const [totalCount, filterResult] = await Promise.all([
-      this.userRepository.count(),
+    if (page >= totalCount && limit > totalCount) {
+      throw new NotFoundException(
+        'The page number exceeds the maximum number of records.',
+      );
+    }
+
+    const [filterResult] = await Promise.all([
       query
         .skip((page - 1) * limit)
         .take(limit)
         .getManyAndCount(),
     ]);
-
     const [data, filterCount] = filterResult;
 
-    return { totalCount, filterCount, data: data };
+    return {
+      totalCount,
+      filterCount,
+      userList: data,
+    };
   }
 
   findOne(id: number) {

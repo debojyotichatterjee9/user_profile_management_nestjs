@@ -5,11 +5,13 @@ export class PaginationQueryParams {
   @IsString()
   search?: string;
 
+  @IsOptional()
   @IsString()
   // @Min(1)
-  page: string;
+  page?: string;
 
+  @IsOptional()
   @IsString()
   // @Min(1)
-  limit: string;
+  limit?: string;
 }
