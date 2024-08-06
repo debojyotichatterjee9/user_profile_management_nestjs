@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/request.dtos/create.user.dto';
-import { UpdateUserDto } from './dto/request.dtos/update-user.dto';
+import { UpdateUserDto } from './dto/request.dtos/update.user.dto';
 import { PaginationQueryParams } from './dto/request.dtos/fetch.user.list.dto';
 import { SerializeInterceptor } from 'src/interceptors/serialize.interceptor';
 
