@@ -11,9 +11,9 @@ import {
 } from 'typeorm';
 import { NIL as NIL_UUID } from 'uuid';
 import { Address } from './user.address.entity';
-import { Contact } from './user.contact.entity';
-import { Identification } from './user.identification.entity';
 import { MetaData } from './user.metadata.entity';
+import { Identification } from './user.identification.entity';
+import { Contact } from './user.contact.entity';
 import { SocialProfile } from './user.social.entity';
 
 @Entity({ name: 'users' })
@@ -52,18 +52,18 @@ export class User {
   @Column({ nullable: true })
   salt_key: string;
 
-  @OneToMany(() => Identification, (identification) => identification.user, {
+  @OneToMany(() => Identification, (identification) => identification.user_id, {
     cascade: true,
   })
   identification: Relation<Identification[]>;
 
-  @OneToMany(() => Address, (address) => address.user, { cascade: true })
+  @OneToMany(() => Address, (address) => address.user_id, { cascade: true })
   address: Relation<Address[]>;
 
-  @OneToMany(() => Contact, (contact) => contact.user, { cascade: true })
+  @OneToMany(() => Contact, (contact) => contact.user_id, { cascade: true })
   contact: Relation<Contact[]>;
 
-  @OneToMany(() => SocialProfile, (socialProfile) => socialProfile.user, {
+  @OneToMany(() => SocialProfile, (socialProfile) => socialProfile.user_id, {
     cascade: true,
   })
   social_profiles: Relation<SocialProfile[]>;
@@ -71,7 +71,10 @@ export class User {
   @Column({ nullable: true })
   avatar: string;
 
-  @OneToOne(() => MetaData, { cascade: true, eager: true })
+  @OneToOne(() => MetaData, (metaData) => metaData.entity_id, {
+    cascade: true,
+    eager: true,
+  })
   @JoinColumn()
   meta_data: MetaData;
 

@@ -1,11 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import loggernaut from 'loggernaut';
 import { Repository } from 'typeorm';
-import { User } from './entities/user.entity';
-import { RegisterUserDto } from './dto/request.dtos/register.user.dto';
 import { CreateUserDto } from './dto/request.dtos/create.user.dto';
-import { UpdateUserDto } from './dto/request.dtos/update.user.dto';
 import { PaginationQueryParams } from './dto/request.dtos/fetch.user.list.dto';
+import { RegisterUserDto } from './dto/request.dtos/register.user.dto';
+import { UpdateUserDto } from './dto/request.dtos/update.user.dto';
+import { User } from './entities/user.entity';
+import { MetaData } from './entities/user.metadata.entity';
 
 @Injectable()
 export class UserService {
@@ -25,15 +27,19 @@ export class UserService {
     } = registerUserDto;
 
     const user = new User();
-    user.email = email;
-    user.name = {
-      name_prefix: name_prefix,
-      first_name: first_name,
-      middle_name: middle_name,
-      last_name: last_name,
-      name_suffix: name_suffix,
-    };
+
+    user.name_prefix = name_prefix;
+    user.first_name = first_name;
+    user.middle_name = middle_name;
+    user.last_name = last_name;
+    user.name_suffix = name_suffix;
+    user.email = email.toLowerCase();
     user.setPassword(password);
+    const userInfo = await this.userRepository.save(user);
+    const meta_data = new MetaData();
+    meta_data.user_id = userInfo.id;
+    meta_data.is_enabled = true;
+    user.meta_data = meta_data;
     return await this.userRepository.save(user);
   }
 

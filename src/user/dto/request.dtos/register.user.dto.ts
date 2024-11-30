@@ -16,6 +16,7 @@ export class RegisterUserDto {
 
   @IsString()
   name_suffix: string;
+
   @IsNotEmpty()
   @IsEmail()
   email: string;

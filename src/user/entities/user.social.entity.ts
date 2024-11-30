@@ -7,13 +7,13 @@ import {
 } from 'typeorm';
 import { User } from './user.entity';
 
-@Entity({ name: 'social_profiles' })
+@Entity({ name: 'user_social_profile' })
 export class SocialProfile {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @ManyToOne(() => User, (user) => user.id)
-  user: Relation<User>;
+  user_id: Relation<User>;
 
   @Column({ nullable: true })
   label: string;

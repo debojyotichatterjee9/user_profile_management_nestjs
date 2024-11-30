@@ -7,13 +7,13 @@ import {
 } from 'typeorm';
 import { User } from './user.entity';
 
-@Entity({ name: 'contacts' })
+@Entity({ name: 'user_contact' })
 export class Contact {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @ManyToOne(() => User, (user) => user.id)
-  user: Relation<User>;
+  user_id: Relation<User>;
 
   @Column({ nullable: true, type: 'varchar', length: 255 })
   type: string;

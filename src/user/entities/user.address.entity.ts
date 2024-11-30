@@ -11,13 +11,13 @@ import { Location } from './user.location.entity';
 import { Timezone } from './user.timezone.entity';
 import { User } from './user.entity';
 
-@Entity({ name: 'addresses' })
+@Entity({ name: 'user_address' })
 export class Address {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @ManyToOne(() => User, (user) => user.id)
-  user: Relation<User>;
+  user_id: Relation<User>;
 
   @Column({ nullable: true, type: 'varchar', length: 255 })
   type: string;

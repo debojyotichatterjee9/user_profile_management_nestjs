@@ -14,14 +14,15 @@ import { CreateUserDto } from './dto/request.dtos/create.user.dto';
 import { UpdateUserDto } from './dto/request.dtos/update.user.dto';
 import { PaginationQueryParams } from './dto/request.dtos/fetch.user.list.dto';
 import { SerializeInterceptor } from 'src/interceptors/serialize.interceptor';
+import { RegisterUserDto } from './dto/request.dtos/register.user.dto';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('register')
-  register(@Body() createUserDto: CreateUserDto) {
-    return this.userService.registerUser(createUserDto);
+  register(@Body() registerUserDto: RegisterUserDto) {
+    return this.userService.registerUser(registerUserDto);
   }
 
   @UseInterceptors(SerializeInterceptor)
