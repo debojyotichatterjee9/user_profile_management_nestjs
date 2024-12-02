@@ -1,9 +1,10 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-@Entity({ name: 'meta_datas' })
+@Entity({ name: 'user_meta_data' })
 export class MetaData {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
   @Column({ nullable: true })
   gender: string;
 

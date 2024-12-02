@@ -1,19 +1,26 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import loggernaut from 'loggernaut';
 import { Repository } from 'typeorm';
-import { User } from './entities/user.entity';
-import { RegisterUserDto } from './dto/request.dtos/register.user.dto';
 import { CreateUserDto } from './dto/request.dtos/create.user.dto';
-import { UpdateUserDto } from './dto/request.dtos/update.user.dto';
 import { PaginationQueryParams } from './dto/request.dtos/fetch.user.list.dto';
+import { RegisterUserDto } from './dto/request.dtos/register.user.dto';
+import { UpdateUserDto } from './dto/request.dtos/update.user.dto';
+import { User } from './entities/user.entity';
+import { MetaData } from './entities/user.metadata.entity';
+import { CreateUserResponseDto } from './dto/response.dtos/user.create.response.dto';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(MetaData)
+    private readonly metaDataRepository: Repository<MetaData>,
   ) {}
-  async registerUser(registerUserDto: RegisterUserDto): Promise<User> {
+  async registerUser(
+    registerUserDto: RegisterUserDto,
+  ): Promise<CreateUserResponseDto> {
     const {
       name_prefix,
       first_name,
@@ -25,16 +32,21 @@ export class UserService {
     } = registerUserDto;
 
     const user = new User();
-    user.email = email;
-    user.name = {
-      name_prefix: name_prefix,
-      first_name: first_name,
-      middle_name: middle_name,
-      last_name: last_name,
-      name_suffix: name_suffix,
-    };
+
+    user.name_prefix = name_prefix;
+    user.first_name = first_name;
+    user.middle_name = middle_name;
+    user.last_name = last_name;
+    user.name_suffix = name_suffix;
+    user.email = email.toLowerCase();
     user.setPassword(password);
+
+    const meta_data = new MetaData();
+    meta_data.is_enabled = true;
+
+    user.meta_data = meta_data;
     return await this.userRepository.save(user);
+    // return userInfo.id;
   }
 
   async createUser(createUserDto: CreateUserDto): Promise<User> {

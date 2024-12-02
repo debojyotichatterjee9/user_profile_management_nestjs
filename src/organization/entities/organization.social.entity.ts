@@ -1,25 +1,25 @@
 import {
-  Column,
   Entity,
-  ManyToOne,
   PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
   Relation,
 } from 'typeorm';
-import { User } from './user.entity';
+import { Organization } from './organization.entity';
 
-@Entity({ name: 'user_identification' })
-export class Identification {
+@Entity({ name: 'organization_social' })
+export class SocialProfile {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => User, (user) => user.id)
-  user_id: Relation<User>;
+  @ManyToOne(() => Organization, (organization) => organization.id)
+  organization_id: Relation<Organization>;
 
   @Column({ nullable: true })
-  type: string;
+  label: string;
 
   @Column({ nullable: true })
-  value: string;
+  link: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_on: Date;

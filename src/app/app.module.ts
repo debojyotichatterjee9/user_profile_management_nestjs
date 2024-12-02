@@ -1,19 +1,19 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { Contact } from 'src/user/entities/user.contact.entity';
+import { Identification } from 'src/user/entities/user.identification.entity';
+import { SocialProfile } from 'src/user/entities/user.social.entity';
 import { Address } from '../user/entities/user.address.entity';
 import { Authentication } from '../user/entities/user.authentication.entity';
 import { Avatar } from '../user/entities/user.avatar.entity';
-import { Contact } from '../user/entities/user.contact.entity';
 import { User } from '../user/entities/user.entity';
-import { Identification } from '../user/entities/user.identification.entity';
 import { Location } from '../user/entities/user.location.entity';
 import { MetaData } from '../user/entities/user.metadata.entity';
 import { Name } from '../user/entities/user.name.entity';
-import { SocialProfile } from '../user/entities/user.social.entity';
 import { Timezone } from '../user/entities/user.timezone.entity';
 import { UserModule } from '../user/user.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 @Module({
   imports: [
     TypeOrmModule.forRoot({

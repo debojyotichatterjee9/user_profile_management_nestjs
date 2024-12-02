@@ -5,21 +5,30 @@ import {
   ManyToOne,
   Relation,
 } from 'typeorm';
-import { User } from './user.entity';
+import { Organization } from './organization.entity';
 
-@Entity({ name: 'user_social_profile' })
-export class SocialProfile {
+@Entity({ name: 'organization_contacts' })
+export class Contact {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => User, (user) => user.id)
-  user_id: Relation<User>;
+  @ManyToOne(() => Organization, (organization) => organization.id)
+  organization_id: Relation<Organization>;
+
+  @Column({ nullable: true, type: 'varchar', length: 255 })
+  type: string;
 
   @Column({ nullable: true })
   label: string;
 
   @Column({ nullable: true })
-  link: string;
+  country_code: string;
+
+  @Column({ nullable: true })
+  number: string;
+
+  @Column({ default: false })
+  is_default: boolean;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_on: Date;

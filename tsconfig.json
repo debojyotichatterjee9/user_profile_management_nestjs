@@ -17,5 +17,9 @@
     "strictBindCallApply": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true
-  }
+  },
+  "include": [
+    "src",
+    "types" // Add this line if your custom declaration file is in a 'typings' directory
+  ]
 }
