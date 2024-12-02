@@ -5,9 +5,6 @@ export class MetaData {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ nullable: false })
-  user_id: string;
-
   @Column({ nullable: true })
   gender: string;
 

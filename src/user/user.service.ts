@@ -8,14 +8,19 @@ import { RegisterUserDto } from './dto/request.dtos/register.user.dto';
 import { UpdateUserDto } from './dto/request.dtos/update.user.dto';
 import { User } from './entities/user.entity';
 import { MetaData } from './entities/user.metadata.entity';
+import { CreateUserResponseDto } from './dto/response.dtos/user.create.response.dto';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(MetaData)
+    private readonly metaDataRepository: Repository<MetaData>,
   ) {}
-  async registerUser(registerUserDto: RegisterUserDto): Promise<User> {
+  async registerUser(
+    registerUserDto: RegisterUserDto,
+  ): Promise<CreateUserResponseDto> {
     const {
       name_prefix,
       first_name,
@@ -35,12 +40,13 @@ export class UserService {
     user.name_suffix = name_suffix;
     user.email = email.toLowerCase();
     user.setPassword(password);
-    const userInfo = await this.userRepository.save(user);
+
     const meta_data = new MetaData();
-    meta_data.user_id = userInfo.id;
     meta_data.is_enabled = true;
+
     user.meta_data = meta_data;
     return await this.userRepository.save(user);
+    // return userInfo.id;
   }
 
   async createUser(createUserDto: CreateUserDto): Promise<User> {

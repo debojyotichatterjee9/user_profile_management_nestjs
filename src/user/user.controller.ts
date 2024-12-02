@@ -13,13 +13,18 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/request.dtos/create.user.dto';
 import { UpdateUserDto } from './dto/request.dtos/update.user.dto';
 import { PaginationQueryParams } from './dto/request.dtos/fetch.user.list.dto';
-import { SerializeInterceptor } from 'src/interceptors/serialize.interceptor';
+import {
+  Serialize,
+  SerializeInterceptor,
+} from 'src/interceptors/serialize.interceptor';
 import { RegisterUserDto } from './dto/request.dtos/register.user.dto';
+import { CreateUserResponseDto } from './dto/response.dtos/user.create.response.dto';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Serialize(CreateUserResponseDto)
   @Post('register')
   register(@Body() registerUserDto: RegisterUserDto) {
     return this.userService.registerUser(registerUserDto);
