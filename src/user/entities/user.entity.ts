@@ -71,7 +71,7 @@ export class User {
   @Column({ nullable: true })
   avatar: string;
 
-  @OneToOne(() => MetaData, (metaData) => metaData.entity_id, {
+  @OneToOne(() => MetaData, (metaData) => metaData.user_id, {
     cascade: true,
     eager: true,
   })

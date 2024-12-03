@@ -4,10 +4,9 @@ import {
   NestInterceptor,
   UseInterceptors,
 } from '@nestjs/common';
-import { plainToClass, plainToInstance } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { UserListResponseDto } from 'src/user/dto/response.dtos/user.list.response.dto';
 
 interface ClassConstructor {
   new (...args: any[]): object;

@@ -2,26 +2,39 @@ import { Type } from 'class-transformer';
 import {
   IsArray,
   IsEmail,
+  IsNotEmpty,
   IsObject,
   IsOptional,
   IsString,
   IsUUID,
+  MinLength,
   ValidateNested,
 } from 'class-validator';
 import { AddressDto } from '../sub-dtos/user.address.dto';
-import { AuthenticationDto } from '../sub-dtos/user.authentication.dto';
-import { AvatarDto } from '../sub-dtos/user.avatar.dto';
 import { ContactDto } from '../sub-dtos/user.contact.dto';
 import { IdentificationDto } from '../sub-dtos/user.identification.dto';
 import { MetaDataDto } from '../sub-dtos/user.metadata.dto';
-import { NameDto } from '../sub-dtos/user.name.dto';
 import { SocialProfileDto } from '../sub-dtos/user.social.dto';
 
 export class CreateUserDto {
-  @IsObject()
-  @ValidateNested({ each: true })
-  @Type(() => NameDto)
-  name?: NameDto;
+  @IsOptional()
+  @IsString()
+  name_prefix: string;
+
+  @IsString()
+  first_name?: string;
+
+  @IsOptional()
+  @IsString()
+  middle_name?: string;
+
+  @IsOptional()
+  @IsString()
+  last_name?: string;
+
+  @IsOptional()
+  @IsString()
+  name_suffix: string;
 
   @IsString()
   @IsEmail()
@@ -34,11 +47,9 @@ export class CreateUserDto {
   @IsUUID()
   organizationId?: string;
 
-  @IsOptional()
-  @IsObject()
-  @ValidateNested({ each: true })
-  @Type(() => AuthenticationDto)
-  authentication: AuthenticationDto;
+  @IsNotEmpty()
+  @MinLength(6)
+  password: string;
 
   @IsOptional()
   @IsArray()
@@ -65,10 +76,7 @@ export class CreateUserDto {
   social_profiles?: SocialProfileDto[];
 
   @IsOptional()
-  @IsObject()
-  @ValidateNested({ each: true })
-  @Type(() => AvatarDto)
-  avatar?: AvatarDto;
+  avatar?: string;
 
   @IsOptional()
   @IsObject()

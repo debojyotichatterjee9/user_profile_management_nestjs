@@ -1,9 +1,19 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToOne,
+  Relation,
+} from 'typeorm';
+import { User } from './user.entity';
 
 @Entity({ name: 'user_meta_data' })
 export class MetaData {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @OneToOne(() => User, (user) => user.id)
+  user_id: Relation<User>;
 
   @Column({ nullable: true })
   gender: string;
