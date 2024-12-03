@@ -15,8 +15,6 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    @InjectRepository(MetaData)
-    private readonly metaDataRepository: Repository<MetaData>,
   ) {}
   async registerUser(
     registerUserDto: RegisterUserDto,
@@ -31,28 +29,28 @@ export class UserService {
       password,
     } = registerUserDto;
 
-    const user = new User();
+    const userObj = new User();
 
-    user.name_prefix = name_prefix;
-    user.first_name = first_name;
-    user.middle_name = middle_name;
-    user.last_name = last_name;
-    user.name_suffix = name_suffix;
-    user.email = email.toLowerCase();
-    user.setPassword(password);
-
-    const meta_data = new MetaData();
-    meta_data.is_enabled = true;
-
-    user.meta_data = meta_data;
+    userObj.name_prefix = name_prefix;
+    userObj.first_name = first_name;
+    userObj.middle_name = middle_name;
+    userObj.last_name = last_name;
+    userObj.name_suffix = name_suffix;
+    userObj.email = email.toLowerCase();
+    userObj.setPassword(password);
+    userObj.meta_data = new MetaData();
+    userObj.meta_data.is_enabled = true;
+    const user = this.userRepository.create(userObj);
     return await this.userRepository.save(user);
-    // return userInfo.id;
   }
 
-  async createUser(createUserDto: CreateUserDto): Promise<User> {
+  async createUser(
+    createUserDto: CreateUserDto,
+  ): Promise<CreateUserResponseDto> {
     const user = this.userRepository.create(createUserDto);
     return await this.userRepository.save(user);
   }
+
   async getUserList(
     queryParams: PaginationQueryParams,
   ): Promise<{ totalCount: number; filterCount: number; userList: User[] }> {

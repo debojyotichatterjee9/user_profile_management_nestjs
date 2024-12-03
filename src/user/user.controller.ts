@@ -30,7 +30,7 @@ export class UserController {
     return this.userService.registerUser(registerUserDto);
   }
 
-  @UseInterceptors(SerializeInterceptor)
+  @Serialize(CreateUserResponseDto)
   @Post('create')
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.createUser(createUserDto);
