@@ -9,6 +9,7 @@ import { UpdateUserDto } from './dto/request.dtos/update.user.dto';
 import { User } from './entities/user.entity';
 import { MetaData } from './entities/user.metadata.entity';
 import { CreateUserResponseDto } from './dto/response.dtos/user.create.response.dto';
+import { UserListResponseDto } from './dto/response.dtos/user.list.response.dto';
 
 @Injectable()
 export class UserService {
@@ -53,8 +54,7 @@ export class UserService {
 
   async getUserList(
     queryParams: PaginationQueryParams,
-  ): Promise<{ totalCount: number; filterCount: number; userList: User[] }> {
-    // TODO: need to fix the type for the line below
+  ): Promise<UserListResponseDto> {
     const {
       search,
       page,
