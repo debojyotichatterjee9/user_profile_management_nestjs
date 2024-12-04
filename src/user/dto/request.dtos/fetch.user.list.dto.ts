@@ -7,11 +7,9 @@ export class PaginationQueryParams {
 
   @IsOptional()
   @IsString()
-  // @Min(1)
   page?: string;
 
   @IsOptional()
   @IsString()
-  // @Min(1)
   limit?: string;
 }
