@@ -6,9 +6,10 @@ import { CreateUserDto } from './dto/request.dtos/create.user.dto';
 import { PaginationQueryParams } from './dto/request.dtos/fetch.user.list.dto';
 import { RegisterUserDto } from './dto/request.dtos/register.user.dto';
 import { UpdateUserDto } from './dto/request.dtos/update.user.dto';
+import { CreateUserResponseDto } from './dto/response.dtos/user.create.response.dto';
+import { UserListResponseDto } from './dto/response.dtos/user.list.response.dto';
 import { User } from './entities/user.entity';
 import { MetaData } from './entities/user.metadata.entity';
-import { CreateUserResponseDto } from './dto/response.dtos/user.create.response.dto';
 
 @Injectable()
 export class UserService {
@@ -53,8 +54,7 @@ export class UserService {
 
   async getUserList(
     queryParams: PaginationQueryParams,
-  ): Promise<{ totalCount: number; filterCount: number; userList: User[] }> {
-    // TODO: need to fix the type for the line below
+  ): Promise<UserListResponseDto> {
     const {
       search,
       page,
@@ -62,18 +62,15 @@ export class UserService {
     }: { search?: string; page?: any; limit?: any } = queryParams;
     const query = this.userRepository
       .createQueryBuilder('user')
-      .leftJoinAndSelect('user.name', 'name')
       .leftJoinAndSelect('user.identification', 'identification')
-      .leftJoinAndSelect('user.authentication', 'authentication')
       .leftJoinAndSelect('user.address', 'address')
       .leftJoinAndSelect('user.contact', 'contact')
       .leftJoinAndSelect('user.social_profiles', 'social_profiles')
-      .leftJoinAndSelect('user.avatar', 'avatar')
       .leftJoinAndSelect('user.meta_data', 'meta_data');
 
     if (search) {
       query.where(
-        'name.first_name ILIKE :search OR name.last_name ILIKE :search OR email ILIKE :search',
+        'first_name ILIKE :search OR last_name ILIKE :search OR email ILIKE :search',
         { search: `%${search}%` },
       );
     }
@@ -92,7 +89,11 @@ export class UserService {
         .getManyAndCount(),
     ]);
     const [data, filterCount] = filterResult;
-
+    loggernaut.info({
+      total_count: totalCount,
+      filter_count: filterCount,
+      user_list: data,
+    });
     return {
       totalCount,
       filterCount,
@@ -100,7 +101,7 @@ export class UserService {
     };
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return `This action returns a #${id} user`;
   }
 

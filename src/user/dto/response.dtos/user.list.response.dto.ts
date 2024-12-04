@@ -1,18 +1,6 @@
 import { Expose, Type } from 'class-transformer';
 
 // TODO: Move the sub dtos to different files and import
-class NameDto {
-  @Expose()
-  name_prefix: string;
-  @Expose()
-  first_name: string;
-  @Expose()
-  middle_name: string;
-  @Expose()
-  last_name: string;
-  @Expose()
-  name_suffix: string;
-}
 class IdentificationDto {
   @Expose()
   type: string;
@@ -37,11 +25,17 @@ class AddressDto {
   @Expose()
   zipcode: string;
   @Expose()
-  is_default: string;
+  is_default: boolean;
 }
-class UserListInterDto {
+class UserListDto {
   @Expose()
   id: string;
+  @Expose()
+  first_name: string;
+  @Expose()
+  middle_name: string;
+  @Expose()
+  last_name: string;
   @Expose()
   email: string;
   @Expose()
@@ -49,12 +43,11 @@ class UserListInterDto {
   @Expose()
   organization_id: string;
   @Expose()
-  created_on: string;
+  @Type(() => Date)
+  created_on: Date;
   @Expose()
-  updated_on: string;
-  @Expose()
-  @Type(() => NameDto)
-  name: NameDto;
+  @Type(() => Date)
+  updated_on: Date;
   @Expose()
   @Type(() => IdentificationDto)
   identification?: IdentificationDto[];
@@ -70,36 +63,6 @@ export class UserListResponseDto {
   filter_count?: number;
 
   @Expose({ name: 'userList' })
-  @Type(() => UserListInterDto)
-  user_list?: UserListInterDto[];
-
-  // @IsOptional()
-  // @IsArray()
-  // @ValidateNested({ each: true })
-  // @Type(() => AddressDto)
-  // address?: AddressDto[];
-
-  // @IsOptional()
-  // @IsArray()
-  // @ValidateNested({ each: true })
-  // @Type(() => ContactDto)
-  // contact?: ContactDto[];
-
-  // @IsOptional()
-  // @IsArray()
-  // @ValidateNested({ each: true })
-  // @Type(() => SocialProfileDto)
-  // social_profiles?: SocialProfileDto[];
-
-  // @IsOptional()
-  // @IsObject()
-  // @ValidateNested({ each: true })
-  // @Type(() => AvatarDto)
-  // avatar?: AvatarDto;
-
-  // @IsOptional()
-  // @IsObject()
-  // @ValidateNested({ each: true })
-  // @Type(() => MetaDataDto)
-  // meta_data?: MetaDataDto;
+  @Type(() => UserListDto)
+  user_list?: UserListDto[];
 }

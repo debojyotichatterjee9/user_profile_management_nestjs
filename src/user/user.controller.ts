@@ -19,6 +19,7 @@ import {
 } from 'src/interceptors/serialize.interceptor';
 import { RegisterUserDto } from './dto/request.dtos/register.user.dto';
 import { CreateUserResponseDto } from './dto/response.dtos/user.create.response.dto';
+import { UserListResponseDto } from './dto/response.dtos/user.list.response.dto';
 
 @Controller('user')
 export class UserController {
@@ -36,7 +37,7 @@ export class UserController {
     return this.userService.createUser(createUserDto);
   }
 
-  @UseInterceptors(SerializeInterceptor)
+  @Serialize(UserListResponseDto)
   @Get('list')
   userList(@Query() queryParams: PaginationQueryParams) {
     // TODO: Default the page and limit to 10 from the config and remove the two fields from thw DTO
