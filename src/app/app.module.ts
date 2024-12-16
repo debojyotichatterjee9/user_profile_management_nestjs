@@ -4,16 +4,15 @@ import { Contact } from 'src/user/entities/user.contact.entity';
 import { Identification } from 'src/user/entities/user.identification.entity';
 import { SocialProfile } from 'src/user/entities/user.social.entity';
 import { Address } from '../user/entities/user.address.entity';
-import { Authentication } from '../user/entities/user.authentication.entity';
-import { Avatar } from '../user/entities/user.avatar.entity';
 import { User } from '../user/entities/user.entity';
-import { Location } from '../user/entities/user.location.entity';
 import { MetaData } from '../user/entities/user.metadata.entity';
-import { Name } from '../user/entities/user.name.entity';
-import { Timezone } from '../user/entities/user.timezone.entity';
 import { UserModule } from '../user/user.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { Organization } from 'src/organization/entities/organization.entity';
+import { OrgAddress } from 'src/organization/entities/organization.address.entity';
+import { OrgContact } from 'src/organization/entities/organization.contact.entity';
+import { OrgSocialProfile } from 'src/organization/entities/organization.social.entity';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -29,17 +28,16 @@ import { AppService } from './app.service';
       synchronize: true,
       logging: true,
       entities: [
-        Name,
-        Authentication,
-        Identification,
-        Location,
-        Timezone,
+        User,
         Address,
         Contact,
+        Identification,
         SocialProfile,
-        Avatar,
         MetaData,
-        User,
+        Organization,
+        OrgAddress,
+        OrgContact,
+        OrgSocialProfile,
       ],
       subscribers: [],
       migrations: [],

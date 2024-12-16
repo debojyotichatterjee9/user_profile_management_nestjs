@@ -4,6 +4,7 @@ import { UpdateOrganizationDto } from './dto/update-organization.dto';
 
 @Injectable()
 export class OrganizationService {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   create(createOrganizationDto: CreateOrganizationDto) {
     return 'This action adds a new organization';
   }

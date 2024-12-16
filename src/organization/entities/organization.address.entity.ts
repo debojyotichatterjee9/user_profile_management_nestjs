@@ -8,7 +8,7 @@ import {
 import { Organization } from './organization.entity';
 
 @Entity({ name: 'organization_addresses' })
-export class Address {
+export class OrgAddress {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 

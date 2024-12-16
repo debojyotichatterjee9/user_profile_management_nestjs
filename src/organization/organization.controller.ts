@@ -8,8 +8,7 @@ import {
   Delete,
 } from '@nestjs/common';
 import { OrganizationService } from './organization.service';
-import { CreateOrganizationDto } from './dto/create-organization.dto';
-import { UpdateOrganizationDto } from './dto/update-organization.dto';
+import { CreateOrganizationDto } from './dto/request.dtos/create.organization.dto';
 
 @Controller('organization')
 export class OrganizationController {
