@@ -8,7 +8,7 @@ import {
 import { Organization } from './organization.entity';
 
 @Entity({ name: 'organization_social' })
-export class SocialProfile {
+export class OrgSocialProfile {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 

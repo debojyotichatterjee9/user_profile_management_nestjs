@@ -1,12 +1,12 @@
 import { IsOptional, IsString } from 'class-validator';
 
-export class LocationDto {
+export class SocialProfileDto {
+  @IsOptional()
+  @IsString()
+  label?: string;
+
 
   @IsOptional()
   @IsString()
-  latitude?: string;
-
-  @IsOptional()
-  @IsString()
-  longitude?: string;
+  link?: string;
 }
