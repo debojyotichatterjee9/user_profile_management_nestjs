@@ -1,12 +1,25 @@
-import { Injectable } from '@nestjs/common';
-import { CreateOrganizationDto } from './dto/create-organization.dto';
-import { UpdateOrganizationDto } from './dto/update-organization.dto';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { CreateOrganizationDto } from './dto/request.dtos/create.organization.dto';
+import { UpdateOrganizationDto } from './dto/request.dtos/update.organization.dto';
+import { Organization } from './entities/organization.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class OrganizationService {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  create(createOrganizationDto: CreateOrganizationDto) {
-    return 'This action adds a new organization';
+  constructor(
+    @InjectRepository(Organization)
+    private readonly organizationRepository: Repository<Organization>,
+  ) {}
+  async create(createOrganizationDto: CreateOrganizationDto) {
+    try {
+      const organization = this.organizationRepository.create(
+        createOrganizationDto,
+      );
+      return await this.organizationRepository.save(organization);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
   findAll() {

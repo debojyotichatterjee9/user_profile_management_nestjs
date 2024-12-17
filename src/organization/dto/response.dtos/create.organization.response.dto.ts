@@ -1,6 +1,6 @@
 import { Expose } from 'class-transformer';
 
-export class CreateUserResponseDto {
+export class CreateOrganizationResponseDto {
   @Expose({ name: 'id' })
   id?: string;
 }

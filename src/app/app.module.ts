@@ -13,6 +13,7 @@ import { Organization } from 'src/organization/entities/organization.entity';
 import { OrgAddress } from 'src/organization/entities/organization.address.entity';
 import { OrgContact } from 'src/organization/entities/organization.contact.entity';
 import { OrgSocialProfile } from 'src/organization/entities/organization.social.entity';
+import { OrganizationModule } from 'src/organization/organization.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -43,6 +44,7 @@ import { OrgSocialProfile } from 'src/organization/entities/organization.social.
       migrations: [],
     }),
     UserModule,
+    OrganizationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
