@@ -1,25 +1,21 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   Query,
-  UseInterceptors,
 } from '@nestjs/common';
-import { UserService } from './user.service';
+import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { CreateUserDto } from './dto/request.dtos/create.user.dto';
-import { UpdateUserDto } from './dto/request.dtos/update.user.dto';
 import { PaginationQueryParams } from './dto/request.dtos/fetch.user.list.dto';
-import {
-  Serialize,
-  SerializeInterceptor,
-} from 'src/interceptors/serialize.interceptor';
 import { RegisterUserDto } from './dto/request.dtos/register.user.dto';
+import { UpdateUserDto } from './dto/request.dtos/update.user.dto';
 import { CreateUserResponseDto } from './dto/response.dtos/user.create.response.dto';
 import { UserListResponseDto } from './dto/response.dtos/user.list.response.dto';
+import { UserService } from './user.service';
 
 @Controller('user')
 export class UserController {

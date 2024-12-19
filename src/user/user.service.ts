@@ -81,7 +81,10 @@ export class UserService {
     createUserDto: CreateUserDto,
   ): Promise<CreateUserResponseDto> {
     try {
-      const user = this.userRepository.create(createUserDto);
+      let userObj = new User();
+      userObj.setPassword(createUserDto.password);
+      userObj = { ...userObj, ...createUserDto };
+      const user = this.userRepository.create(userObj);
       return await this.userRepository.save(user);
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -140,11 +143,6 @@ export class UserService {
           .getManyAndCount(),
       ]);
       const [data, filterCount] = filterResult;
-      loggernaut.info({
-        total_count: totalCount,
-        filter_count: filterCount,
-        user_list: data,
-      });
       return {
         totalCount,
         filterCount,
