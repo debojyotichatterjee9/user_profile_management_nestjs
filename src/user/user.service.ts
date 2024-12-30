@@ -25,12 +25,12 @@ export class UserService {
    * The function `registerUser` takes a `RegisterUserDto` object, creates a new user entity with the
    * provided data, and saves it to the database, returning a `CreateUserResponseDto`.
    *
-   * :param registerUserDto: The `registerUserDto` parameter in the `registerUser` function contains
-   * the following properties:
-   * :type registerUserDto: RegisterUserDto
-   * :return: The `registerUser` function is returning a Promise that resolves to a
-   * `CreateUserResponseDto` object after creating and saving a new user based on the data provided in
-   * the `registerUserDto`.
+   * @param RegisterUserDto registerUserDto The `registerUserDto` parameter in the `registerUser`
+   * function contains the following properties:
+   *
+   * @return The `registerUser` function is returning a Promise that resolves to a
+   * `CreateUserResponseDto` object. This object likely contains information about the user that was
+   * created, such as their ID or other relevant details.
    */
   async registerUser(
     registerUserDto: RegisterUserDto,
@@ -65,17 +65,16 @@ export class UserService {
   }
 
   /**
-   * The function `createUser` creates a new user using the provided data and returns the response.
+   * The function creates a new user by setting the password, merging user data, creating a user
+   * object, and saving it to the repository.
    *
-   * :param createUserDto: The `createUserDto` parameter in the `createUser` function likely represents a
-   * data transfer object (DTO) that contains the information needed to create a new user. This object
-   * may include properties such as username, email, password, and any other relevant user details
-   * required for user creation
-   * :type createUserDto: CreateUserDto
-   * :return: The `createUser` function is returning a Promise that resolves to a `CreateUserResponseDto`
-   * object. This object is created by saving the user data provided in the `createUserDto` using the
-   * `userRepository`. If an error occurs during the process, a `BadRequestException` is thrown with the
-   * error message.
+   * @param CreateUserDto createUserDto The `createUserDto` parameter in the `createUser` function
+   * likely represents a data transfer object (DTO) containing information needed to create a new user.
+   * It may include properties such as `username`, `email`, `password`, `firstName`, `lastName`, etc.
+   * This object is used to
+   *
+   * @return The `createUser` function returns a Promise that resolves to a `CreateUserResponseDto`
+   * object. This object represents the user that was created and saved in the database.
    */
   async createUser(
     createUserDto: CreateUserDto,
@@ -90,20 +89,20 @@ export class UserService {
       throw new BadRequestException(error.message);
     }
   }
-
   /**
    * This TypeScript function retrieves a list of users based on pagination query parameters, including
-   * search criteria, and returns the total count, filtered count, and user list.
+   * search criteria, and returns a response with user data and counts.
    *
-   * :param queryParams: The `getUserList` function you provided is responsible for fetching a list of
-   * users based on the pagination query parameters. Here's a breakdown of the function:
-   * :type queryParams: PaginationQueryParams
-   * :return: The `getUserList` function returns a Promise that resolves to a `UserListResponseDto`
+   * @param PaginationQueryParams queryParams The `getUserList` function you provided is an
+   * asynchronous function that retrieves a list of users based on the pagination query parameters
+   * passed to it. The function performs a database query to fetch users with optional search criteria
+   * and pagination settings.
+   *
+   * @return The function `getUserList` returns a Promise that resolves to a `UserListResponseDto`
    * object. This object contains the following properties:
    * - `totalCount`: Total count of users in the database.
-   * - `filterCount`: Count of users after applying any filters based on the pagination query
-   * parameters.
-   * - `userList`: An array of user objects that match the search criteria and pagination limits.
+   * - `filterCount`: Count of users after applying the pagination filters.
+   * - `userList`: An array of user objects that match the pagination criteria.
    */
   async getUserList(
     queryParams: PaginationQueryParams,
@@ -124,13 +123,15 @@ export class UserService {
 
       if (search) {
         query.where(
-          'first_name ILIKE :search OR last_name ILIKE :search OR email ILIKE :search',
-          { search: `%${search}%` },
+          'first_name ILIKE :search OR last_name ILIKE :search OR email ILIKE :search AND meta_data.is_deleted = :deleted',
+          { search: `%${search}%`, deleted: false },
         );
+      } else {
+        query.where('meta_data.is_deleted = :deleted', { deleted: false });
       }
       const totalCount = await this.userRepository.count();
 
-      if (page >= totalCount && limit > totalCount) {
+      if (page > totalCount && limit > totalCount) {
         throw new NotFoundException(
           'The page number exceeds the maximum number of records.',
         );
@@ -155,18 +156,18 @@ export class UserService {
 
   /**
    * This TypeScript function asynchronously finds a user by their ID, fetching related information and
-   * handling exceptions.
+   * handling exceptions appropriately.
    *
-   * :param id: The `findOne` function you provided is an asynchronous function that retrieves user
-   * information based on the provided `id`. The function uses the `userRepository` to find a user with
-   * the specified `id` and includes related entities such as identification, address, contact, social
-   * profiles, and meta data
-   * :type id: string
-   * :return: The `findOne` method is returning the user information for the user with the specified
-   * `id`. This information includes the user's identification, address, contact details, social
-   * profiles, and meta data. If the user is not found, a `NotFoundException` is thrown with the
-   * message 'User not found!'. If any other error occurs during the process, a `BadRequestException`
-   * is thrown with the error
+   * @param string id The `findOne` function you provided is an asynchronous function that retrieves
+   * user information based on the provided `id`. The function uses the `userRepository` to find a user
+   * with the specified `id` and includes related entities such as identification, address, contact,
+   * social profiles, and meta data.
+   *
+   * @return The `findOne` method is returning the user information for the user with the specified
+   * `id`. If the user is found, the method returns the user information object. If the user is not
+   * found, a `NotFoundException` is thrown with the message 'User not found!'. If any other error
+   * occurs during the process, a `BadRequestException` is thrown with the error message and status
+   * code.
    */
   async findOne(id: string) {
     try {
@@ -191,21 +192,19 @@ export class UserService {
       throw new BadRequestException(error.message, error.statusC);
     }
   }
-
   /**
-   * The update function in TypeScript updates a user entity in the database with new data while ensuring
-   * certain fields are not modified.
+   * The function updates a user in a database, ensuring that certain fields cannot be modified and
+   * handling exceptions appropriately.
    *
-   * :param id: The `id` parameter in the `update` function is a string that represents the unique
-   * identifier of the user you want to update in the database. This identifier is used to locate the
-   * specific user record that needs to be updated
-   * :type id: string
-   * :param updateUserDto: The `updateUserDto` parameter is an object that contains the data to update
-   * for a user. In the provided code snippet, it is used to update a user entity in the database. The
-   * code checks if the `updateUserDto` object contains certain properties like `password` or
-   * `organization_id
-   * :type updateUserDto: UpdateUserDto
-   * :return: The `update` method is returning a Promise that resolves to a `User` object after updating
+   * @param string id The `id` parameter in the `update` function is a string that represents the
+   * unique identifier of the user you want to update. This identifier is used to find the user in the
+   * database so that the update operation can be performed on the correct user record.
+   * @param UpdateUserDto updateUserDto The `updateUserDto` parameter is an object that contains the
+   * data to update for a user. In the provided code snippet, it is checked for the presence of certain
+   * properties (`password` and `organization_id`) to ensure that these properties are not allowed to
+   * be updated. If either of these properties
+   *
+   * @return The `update` method is returning a Promise that resolves to a `User` object after updating
    * the user data in the database.
    */
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
@@ -233,7 +232,14 @@ export class UserService {
     }
   }
 
-  async delete(id: string): Promise<void> {
+  /**
+   * The function `delete` asynchronously soft deletes a user by updating metadata and saving the changes
+   * to the database.
+   *
+   * @param string id The `id` parameter in the `delete` method is a string that represents the unique
+   * identifier of the user that needs to be deleted.
+   */
+  async delete(id: string): Promise<User> {
     try {
       const user = await this.userRepository.findOne({
         where: { id },
@@ -249,8 +255,8 @@ export class UserService {
       user.meta_data.deleted_on = new Date();
 
       // Save the updated user back to the database
-      await this.userRepository.save(user);
       loggernaut.info(`User with ID ${id} has been soft deleted.`);
+      return await this.userRepository.save(user);
     } catch (error) {
       loggernaut.error(error.message);
       throw new BadRequestException(error.message);

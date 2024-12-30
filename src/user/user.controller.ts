@@ -16,6 +16,8 @@ import { UpdateUserDto } from './dto/request.dtos/update.user.dto';
 import { CreateUserResponseDto } from './dto/response.dtos/user.create.response.dto';
 import { UserListResponseDto } from './dto/response.dtos/user.list.response.dto';
 import { UserService } from './user.service';
+import { UpdateUserResponseDto } from './dto/response.dtos/user.update.response.dto';
+import { DeleteUserResponseDto } from './dto/response.dtos/user.delete.response.dto';
 
 @Controller('user')
 export class UserController {
@@ -45,11 +47,13 @@ export class UserController {
     return this.userService.findOne(id);
   }
 
+  @Serialize(UpdateUserResponseDto)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(id, updateUserDto);
   }
 
+  @Serialize(DeleteUserResponseDto)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.userService.delete(id);

@@ -15,6 +15,8 @@ import { CreateOrganizationResponseDto } from './dto/response.dtos/create.organi
 import { UpdateOrganizationDto } from './dto/request.dtos/update.organization.dto';
 import { PaginationQueryParams } from './dto/request.dtos/fetch.organization.list.dto';
 import { OrganizationListResponseDto } from './dto/response.dtos/fetch.organization.list.response.dto';
+import { UpdateOrganizationResponseDto } from './dto/response.dtos/update.organization.response.dto';
+import { DeleteOrganizationResponseDto } from './dto/response.dtos/delete.organization.response.dto copy 2';
 
 @Controller('organization')
 export class OrganizationController {
@@ -37,6 +39,7 @@ export class OrganizationController {
     return this.organizationService.findOne(id);
   }
 
+  @Serialize(UpdateOrganizationResponseDto)
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -45,6 +48,7 @@ export class OrganizationController {
     return this.organizationService.update(id, updateOrganizationDto);
   }
 
+  @Serialize(DeleteOrganizationResponseDto)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.organizationService.remove(id);
