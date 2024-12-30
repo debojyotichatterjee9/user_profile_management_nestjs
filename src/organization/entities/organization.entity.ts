@@ -1,4 +1,6 @@
 import {
+  BeforeInsert,
+  BeforeUpdate,
   Column,
   Entity,
   Index,
@@ -20,7 +22,23 @@ export class Organization {
   name: string;
 
   @Column({ unique: true, nullable: false })
-  contact_email: string;
+  private contact_email: string;
+
+  get email(): string {
+    return this.contact_email;
+  }
+
+  set email(value: string) {
+    this.contact_email = value.toLowerCase();
+  }
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  private convertEmailToLowerCase() {
+    if (this.contact_email) {
+      this.contact_email = this.contact_email.toLowerCase();
+    }
+  }
 
   @OneToMany(() => OrgAddress, (address) => address.organization_id, {
     cascade: true,

@@ -12,7 +12,7 @@ import { AddressDto } from '../sub-dtos/organization.address.dto';
 import { ContactDto } from '../sub-dtos/organization.contact.dto';
 import { SocialProfileDto } from '../sub-dtos/organization.social.dto';
 
-export class UpdateUserDto extends PartialType(CreateOrganizationDto) {
+export class UpdateOrganizationDto extends PartialType(CreateOrganizationDto) {
   @IsString()
   name: string;
 

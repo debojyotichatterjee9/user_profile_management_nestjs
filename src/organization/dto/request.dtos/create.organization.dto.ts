@@ -22,7 +22,7 @@ export class CreateOrganizationDto {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => AddressDto)
-  address?: AddressDto[];
+  address: AddressDto[];
 
   @IsOptional()
   @IsArray()

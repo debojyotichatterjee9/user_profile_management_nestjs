@@ -1,11 +1,11 @@
 import { Expose, Type } from 'class-transformer';
 
 // TODO: Move the sub dtos to different files and import
-class IdentificationDto {
+class SocialProfileDto {
   @Expose()
-  type: string;
+  label: string;
   @Expose()
-  value: string;
+  link: string;
 }
 class AddressDto {
   @Expose()
@@ -25,44 +25,67 @@ class AddressDto {
   @Expose()
   zipcode: string;
   @Expose()
+  latitude: string;
+  @Expose()
+  longitude: string;
+  @Expose()
+  offset: string;
+  @Expose()
+  zone: string;
+  @Expose()
   is_default: boolean;
 }
-class UserListDto {
+class ContactDto {
+  @Expose()
+  type: string;
+  @Expose()
+  label: string;
+  @Expose()
+  country_code: string;
+  @Expose()
+  number: string;
+  @Expose()
+  is_default: boolean;
+}
+class OrganizationListDto {
   @Expose()
   id: string;
   @Expose()
-  first_name: string;
+  name: string;
   @Expose()
-  middle_name: string;
+  contact_email: string;
   @Expose()
-  last_name: string;
+  logo: string;
   @Expose()
-  email: string;
+  is_enabled: boolean;
   @Expose()
-  username: string;
+  is_deleted: boolean;
   @Expose()
-  organization_id: string;
-  @Expose()
-  @Type(() => Date)
-  created_on: Date;
+  enabled_on: string;
   @Expose()
   @Type(() => Date)
-  updated_on: Date;
+  disabled_on: Date;
   @Expose()
-  @Type(() => IdentificationDto)
-  identification?: IdentificationDto[];
+  @Type(() => Date)
+  deleted_on: Date;
   @Expose()
   @Type(() => AddressDto)
   address: AddressDto[];
+  @Expose()
+  @Type(() => ContactDto)
+  contact: ContactDto[];
+  @Expose()
+  @Type(() => SocialProfileDto)
+  social_profiles?: SocialProfileDto[];
 }
-export class UserListResponseDto {
+export class OrganizationListResponseDto {
   @Expose({ name: 'totalCount' })
   total_count?: number;
 
   @Expose({ name: 'filterCount' })
   filter_count?: number;
 
-  @Expose({ name: 'userList' })
-  @Type(() => UserListDto)
-  user_list?: UserListDto[];
+  @Expose({ name: 'organizationList' })
+  @Type(() => OrganizationListDto)
+  organization_list?: OrganizationListDto[];
 }

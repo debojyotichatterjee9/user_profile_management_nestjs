@@ -1,5 +1,7 @@
 import * as crypto from 'crypto';
 import {
+  BeforeInsert,
+  BeforeUpdate,
   Column,
   Entity,
   Index,
@@ -38,7 +40,23 @@ export class User {
   name_suffix: string;
 
   @Column({ unique: true, nullable: false })
-  email: string;
+  private email: string;
+
+  get user_email(): string {
+    return this.email;
+  }
+
+  set user_email(value: string) {
+    this.email = value.toLowerCase();
+  }
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  private convertEmailToLowerCase() {
+    if (this.email) {
+      this.email = this.email.toLowerCase();
+    }
+  }
 
   @Column({ nullable: true })
   username: string;
