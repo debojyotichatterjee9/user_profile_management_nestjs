@@ -45,6 +45,16 @@ export class UserService {
         email,
         password,
       } = registerUserDto;
+      const existingUserInfo = await this.userRepository.findOne({
+        where: {
+          email,
+        },
+      });
+      if (existingUserInfo) {
+        throw new BadRequestException(
+          'User with the provided email already exists.',
+        );
+      }
 
       const userObj = new User();
 

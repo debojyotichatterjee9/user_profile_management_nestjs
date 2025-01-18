@@ -40,7 +40,7 @@ export class User {
   name_suffix: string;
 
   @Column({ unique: true, nullable: false })
-  private email: string;
+  email: string;
 
   get user_email(): string {
     return this.email;
