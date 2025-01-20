@@ -1,9 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { UserService } from 'src/user/user.service';
+import { LoginDto } from './dto/request.dtos/login.dto';
+import { authenticationDto } from './dto/request.dtos/authenticate.dto';
 
 @Injectable()
 export class AuthenticationService {
-  conststructor(
-    private readonly userService: UserService
-  ){}
+  login(loginDto: LoginDto) {
+    return `This action is login`;
+  }
+
+  logout(token: string) {
+    return `This action is logout`;
+  }
+
+  authenticate(token: string) {
+    return `This action is logout`;
+  }
 }
