@@ -16,7 +16,7 @@ import { UpdateOrganizationDto } from './dto/request.dtos/update.organization.dt
 import { PaginationQueryParams } from './dto/request.dtos/fetch.organization.list.dto';
 import { OrganizationListResponseDto } from './dto/response.dtos/fetch.organization.list.response.dto';
 import { UpdateOrganizationResponseDto } from './dto/response.dtos/update.organization.response.dto';
-import { DeleteOrganizationResponseDto } from './dto/response.dtos/delete.organization.response.dto copy 2';
+import { DeleteOrganizationResponseDto } from './dto/response.dtos/delete.organization.response.dto';
 
 @Controller('organization')
 export class OrganizationController {

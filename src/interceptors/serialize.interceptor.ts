@@ -8,6 +8,7 @@ import { plainToInstance } from 'class-transformer';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
+// This interface basically means any class, as typescript doesnt supprort type safety around the decorators.
 interface ClassConstructor {
   new (...args: any[]): object;
 }
