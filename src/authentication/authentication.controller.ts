@@ -6,13 +6,13 @@ import { LoginDto } from './dto/request.dtos/login.dto';
 export class AuthenticationController {
   constructor(private readonly authenticationService: AuthenticationService) {}
 
-  @Post()
+  @Post('login')
   login(@Body() loginDto: LoginDto) {
     return this.authenticationService.login(loginDto);
   }
 
-  @Post()
-  logout() {
-    return this.authenticationService.logout(token: string);
+  @Post('logout')
+  logout(token: string) {
+    return this.authenticationService.logout(token);
   }
 }

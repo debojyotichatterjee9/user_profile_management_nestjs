@@ -14,6 +14,7 @@ import { OrgAddress } from 'src/organization/entities/organization.address.entit
 import { OrgContact } from 'src/organization/entities/organization.contact.entity';
 import { OrgSocialProfile } from 'src/organization/entities/organization.social.entity';
 import { OrganizationModule } from 'src/organization/organization.module';
+import { AuthenticationModule } from 'src/authentication/authentication.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -43,6 +44,7 @@ import { OrganizationModule } from 'src/organization/organization.module';
       subscribers: [],
       migrations: [],
     }),
+    AuthenticationModule,
     UserModule,
     OrganizationModule,
   ],
