@@ -15,6 +15,7 @@ import { OrgContact } from 'src/organization/entities/organization.contact.entit
 import { OrgSocialProfile } from 'src/organization/entities/organization.social.entity';
 import { OrganizationModule } from 'src/organization/organization.module';
 import { AuthenticationModule } from 'src/authentication/authentication.module';
+import { Authentication } from 'src/authentication/entities/authentication.entity';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -30,6 +31,7 @@ import { AuthenticationModule } from 'src/authentication/authentication.module';
       synchronize: true,
       logging: true,
       entities: [
+        Authentication,
         User,
         Address,
         Contact,
@@ -50,5 +52,6 @@ import { AuthenticationModule } from 'src/authentication/authentication.module';
   ],
   controllers: [AppController],
   providers: [AppService],
+  exports:[UserModule]
 })
 export class AppModule {}

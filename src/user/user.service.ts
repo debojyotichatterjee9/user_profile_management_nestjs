@@ -272,4 +272,29 @@ export class UserService {
       throw new BadRequestException(error.message);
     }
   }
+
+  async findUserByIdentity(userIdentity: string) {
+    try {
+      const userInfo = await this.userRepository.findOneOrFail({
+        where: [
+          {
+            id: userIdentity,
+          },
+          {
+            email: userIdentity,
+          },
+          {
+            username: userIdentity,
+          },
+        ],
+      });
+      if(!userInfo) {
+        throw new NotFoundException('User with the email/username does not exist');
+      }
+      return userInfo;
+    } catch (error) {
+      loggernaut.error(error.message);
+      throw new BadRequestException(error.message)
+    }
+  }
 }
