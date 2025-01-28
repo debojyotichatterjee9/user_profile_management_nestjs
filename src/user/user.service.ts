@@ -14,12 +14,14 @@ import { CreateUserResponseDto } from './dto/response.dtos/user.create.response.
 import { UserListResponseDto } from './dto/response.dtos/user.list.response.dto';
 import { User } from './entities/user.entity';
 import { MetaData } from './entities/user.metadata.entity';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly configService: ConfigService,
   ) {}
   /**
    * The function `registerUser` takes a `RegisterUserDto` object, creates a new user entity with the
@@ -275,11 +277,14 @@ export class UserService {
 
   async findUserByIdentity(userIdentity: string) {
     try {
+      console.log('>> ************************************************** <<');
+      console.log(this.configService.get('PASETO.audience'))
+      console.log(this.configService.get('PASETO.issuer'))
       const userInfo = await this.userRepository.findOneOrFail({
         where: [
-          {
-            id: userIdentity,
-          },
+          // {
+          //   id: userIdentity,
+          // },
           {
             email: userIdentity,
           },
@@ -288,13 +293,15 @@ export class UserService {
           },
         ],
       });
-      if(!userInfo) {
-        throw new NotFoundException('User with the email/username does not exist');
+      if (!userInfo) {
+        throw new NotFoundException(
+          'User with the email/username does not exist',
+        );
       }
       return userInfo;
     } catch (error) {
       loggernaut.error(error.message);
-      throw new BadRequestException(error.message)
+      throw new BadRequestException(error.message);
     }
   }
 }

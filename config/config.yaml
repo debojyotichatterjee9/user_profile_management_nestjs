@@ -1,0 +1,13 @@
+http:
+  host: 'localhost'
+  port: 8080
+db:
+  postgres:
+    url: 'localhost'
+    port: 5432
+    database: 'yaml-db'
+  sqlite:
+    database: 'sqlite.db'
+PASETO:
+  audience: "urn:example:client"
+  issuer: "http://localhost:3000"
