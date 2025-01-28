@@ -25,9 +25,16 @@ export class PasetoProvider {
   async generateEncryptedToken(payload: PasetoPayload, PASETO_LOCAL_KEY:string) {
     try {
       return await V3.encrypt(payload, PASETO_LOCAL_KEY, {
+        assertion: "",
         audience: 'urn:example:client',
-        issuer: 'https://op.example.com',
         expiresIn: '2 hours',
+        iat: true,
+        issuer: 'https://op.example.com',
+        jti: "",
+        kid: "",
+        notBefore: "",
+        now: new Date(),
+        subject: "",
       });
     } catch (error) {
       loggernaut.error(error.message);
