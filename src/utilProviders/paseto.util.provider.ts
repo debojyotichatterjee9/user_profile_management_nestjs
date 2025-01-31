@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import loggernaut from 'loggernaut';
 import { V3 } from 'paseto';
 
@@ -9,7 +10,7 @@ interface PasetoPayload {
 
 @Injectable()
 export class PasetoProvider {
-  constructor() {}
+  constructor(private configService: ConfigService) {}
 
   async generatePaserkLocalKey(): Promise<string> {
     try {
@@ -24,9 +25,12 @@ export class PasetoProvider {
 
   async generateEncryptedToken(payload: PasetoPayload, PASETO_LOCAL_KEY:string) {
     try {
+      console.log('>> ################################################## <<');
+      console.log(this.configService.get('PASETO.audience'))
+      console.log(this.configService.get('PASETO.issuer'))
       return await V3.encrypt(payload, PASETO_LOCAL_KEY, {
-        audience: 'urn:example:client',
-        issuer: 'https://op.example.com',
+        audience: this.configService.get('PASETO.audience'),
+        issuer: this.configService.get('PASETO.issuer'),
         expiresIn: '2 hours',
       });
     } catch (error) {

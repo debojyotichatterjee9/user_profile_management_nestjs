@@ -16,8 +16,14 @@ import { OrgSocialProfile } from 'src/organization/entities/organization.social.
 import { OrganizationModule } from 'src/organization/organization.module';
 import { AuthenticationModule } from 'src/authentication/authentication.module';
 import { Authentication } from 'src/authentication/entities/authentication.entity';
+import { ConfigModule } from '@nestjs/config';
+import configuration from 'src/configuration/configuration';
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      load: [configuration],
+      isGlobal: true,
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
@@ -52,6 +58,6 @@ import { Authentication } from 'src/authentication/entities/authentication.entit
   ],
   controllers: [AppController],
   providers: [AppService],
-  exports:[UserModule]
+  exports:[]
 })
 export class AppModule {}
