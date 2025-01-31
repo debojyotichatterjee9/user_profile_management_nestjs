@@ -15,6 +15,7 @@ import { UserListResponseDto } from './dto/response.dtos/user.list.response.dto'
 import { User } from './entities/user.entity';
 import { MetaData } from './entities/user.metadata.entity';
 import { ConfigService } from '@nestjs/config';
+import { validate as uuidValidate } from 'uuid';
 
 @Injectable()
 export class UserService {
@@ -277,22 +278,25 @@ export class UserService {
 
   async findUserByIdentity(userIdentity: string) {
     try {
-      console.log('>> ************************************************** <<');
-      console.log(this.configService.get('PASETO.audience'))
-      console.log(this.configService.get('PASETO.issuer'))
-      const userInfo = await this.userRepository.findOneOrFail({
-        where: [
-          // {
-          //   id: userIdentity,
-          // },
-          {
-            email: userIdentity,
+      let userInfo;
+      if (uuidValidate(userIdentity)) {
+        userInfo = await this.userRepository.findOne({
+          where: {
+            id: userIdentity,
           },
-          {
-            username: userIdentity,
-          },
-        ],
-      });
+        });
+      } else {
+        userInfo = await this.userRepository.findOneOrFail({
+          where: [
+            {
+              email: userIdentity,
+            },
+            {
+              username: userIdentity,
+            },
+          ],
+        });
+      }
       if (!userInfo) {
         throw new NotFoundException(
           'User with the email/username does not exist',
