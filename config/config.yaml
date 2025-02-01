@@ -1,13 +1,20 @@
 http:
-  host: 'localhost'
+  host: "localhost"
   port: 8080
 db:
   postgres:
-    url: 'localhost'
+    url: "localhost"
     port: 5432
-    database: 'yaml-db'
+    database: "yaml-db"
   sqlite:
-    database: 'sqlite.db'
+    database: "sqlite.db"
 PASETO:
-  audience: "urn:example:client"
+  assertion: "user-authenticate"
+  audience: "user_profile_management"
   issuer: "http://localhost:3000"
+  not_before: "3s"
+  token_life: "15m"
+  footer:
+    purpose: "authentication"
+  max_token_age: "15m"
+  clock_tplerance: "0s"
