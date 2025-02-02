@@ -21,7 +21,7 @@ export class AuthenticationService {
     private readonly userService: UserService,
     private readonly pasetoProvider: PasetoProvider,
   ) {}
-  async login(payload: LoginDto, session: any) {
+  async login(ip: string, headers: any, payload: LoginDto, session: any) {
     try {
       if (!payload.email && !payload.username) {
         throw new BadRequestException('Please provide a email or username.');
@@ -58,8 +58,8 @@ export class AuthenticationService {
       tokenObj.token = token;
       tokenObj.user_id = userInfo.id;
       tokenObj.user_email = userInfo.email;
-      tokenObj.user_agent = 'TBD';
-      tokenObj.ip = 'TBD';
+      tokenObj.user_agent = headers['user-agent'];
+      tokenObj.ip = ip;
       // const user = this.authRepository.create(tokenObj);
       const tokenInfo = await this.authRepository.save(tokenObj);
 
@@ -70,11 +70,7 @@ export class AuthenticationService {
     }
   }
 
-  logout(token: string) {
-    return `This action is logout`;
-  }
-
-  async authenticate(token: string) {
+  async logout(token: string) {
     try {
       const tokenInfo = await this.authRepository.findOneOrFail({
         where: {
@@ -82,6 +78,33 @@ export class AuthenticationService {
         },
       });
       if (!token) {
+        throw new UnauthorizedException('This is a invalid token.');
+      }
+
+      // Invalidate the found token
+      const updatedToken = this.authRepository.merge(tokenInfo, {
+        is_expired: true,
+      });
+
+      // Save the updated token
+      return await this.authRepository.save(updatedToken);
+    } catch (error) {
+      loggernaut.error(error.message);
+      throw new BadRequestException(
+        'Something went wrong, please try again later.',
+      );
+    }
+  }
+
+  async authenticate(token: string) {
+    try {
+      const tokenInfo = await this.authRepository.findOne({
+        where: {
+          token: token,
+          is_expired: false
+        },
+      });
+      if (!tokenInfo) {
         throw new UnauthorizedException('This is a invalid token.');
       }
       const decodedTokenInfo: any =
