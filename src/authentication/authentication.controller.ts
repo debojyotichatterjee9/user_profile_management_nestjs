@@ -11,6 +11,11 @@ export class AuthenticationController {
     return this.authenticationService.login(ip, headers, payload, session);
   }
 
+  @Get('refresh')
+  getRefresheToken(@Ip() ip: string, @Headers() headers: any, @Body() payload: LoginDto, @Session() session: any) {
+    return this.authenticationService.getRefresheToken(ip, headers, payload, session);
+  }
+
   @Get()
   authenticate(@Headers() headers: any) {
     const token = headers.authentication;
