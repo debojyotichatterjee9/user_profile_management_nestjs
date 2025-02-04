@@ -13,6 +13,9 @@ export class Authentication {
   token: string;
 
   @Column({ nullable: false })
+  refresh_token: string;
+
+  @Column({ nullable: false })
   user_id: string;
 
   @Column({ nullable: false })
@@ -25,7 +28,10 @@ export class Authentication {
   ip: string;
 
   @Column({ default: false })
-  is_expired: boolean;
+  token_expired: boolean;
+
+  @Column({ default: false })
+  refresh_token_expired: boolean;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   last_accessed_on: Date;

@@ -25,6 +25,33 @@ export class PasetoProvider {
   async generateEncryptedToken(
     payload: PasetoPayload,
     PASETO_LOCAL_KEY: string,
+    generateRefreshToken = false
+  ) {
+    try {
+      return await V3.encrypt(payload, PASETO_LOCAL_KEY, {
+        assertion: this.configService.get('PASETO.audience'),
+        audience: this.configService.get('PASETO.audience'),
+        expiresIn: !generateRefreshToken ? this.configService.get('PASETO.token_life') : this.configService.get('PASETO.refresh_token_life'),
+        iat: true,
+        issuer: this.configService.get('PASETO.issuer'),
+        // jti: "unique-token-id", // Replace with a generated UUID
+        // kid: "key-id-1234", // Replace with a unique key identifier
+        notBefore: this.configService.get('PASETO.not_before'),
+        now: new Date(),
+        subject: payload.user_id,
+        footer: {
+          purpose: this.configService.get('PASETO.purpose'),
+        },
+      });
+    } catch (error) {
+      loggernaut.error(error.message);
+      throw new Error('Failed to generate encrypted token.');
+    }
+  }
+
+  async generateRefreshEncryptedToken(
+    payload: PasetoPayload,
+    PASETO_LOCAL_KEY: string,
   ) {
     try {
       return await V3.encrypt(payload, PASETO_LOCAL_KEY, {

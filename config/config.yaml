@@ -9,12 +9,14 @@ db:
   sqlite:
     database: "sqlite.db"
 PASETO:
+  refresh_token_flag: true
   assertion: "user-authenticate"
   audience: "user_profile_management"
   issuer: "http://localhost:3000"
   not_before: "3s"
   token_life: "15m"
+  refresh_token_life: "30d"
   footer:
     purpose: "authentication"
   max_token_age: "15m"
-  clock_tplerance: "0s"
+  clock_tolerance: "0s"

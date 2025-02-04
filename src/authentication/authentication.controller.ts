@@ -11,6 +11,15 @@ export class AuthenticationController {
     return this.authenticationService.login(ip, headers, payload, session);
   }
 
+  @Get('refresh')
+  getRefresheToken(@Ip() ip: string, @Headers() headers: any, @Session() session: any) {
+    const refreshToken = headers.authentication;
+    if(!refreshToken) {
+      throw new NotAcceptableException("This is not a valid call.")
+    }
+    return this.authenticationService.refreshToken(refreshToken, ip, headers, session);
+  }
+
   @Get()
   authenticate(@Headers() headers: any) {
     const token = headers.authentication;
