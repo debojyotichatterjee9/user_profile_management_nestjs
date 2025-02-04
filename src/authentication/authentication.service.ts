@@ -51,7 +51,7 @@ export class AuthenticationService {
     }
   }
 
-  async getRefreshToken(
+  async refreshToken(
     refreshToken: string,
     ip: string,
     headers: any,
@@ -61,16 +61,20 @@ export class AuthenticationService {
       const refreshTokenInfo = await this.authRepository.findOneOrFail({
         where: {
           refresh_token: refreshToken,
-          refresh_token_expired: false,
         },
       });
+      if (refreshTokenInfo.refresh_token_expired) {
+        throw new BadRequestException(
+          'The refresh token provided is already expired.',
+        );
+      }
       const decodedRefreshTokenInfo: any =
         await this.pasetoProvider.decodeEncryptedToken(
           refreshToken,
           refreshTokenInfo.key,
         );
       if (!decodedRefreshTokenInfo) {
-        throw new NotFoundException('Invalid token.');
+        throw new BadRequestException('Invalid token.');
       }
       const userIdentity: string = decodedRefreshTokenInfo.sub;
       const userInfo = await this.userService.findUserByIdentity(userIdentity);
@@ -79,9 +83,23 @@ export class AuthenticationService {
           'User with the for this token does not exist',
         );
       }
-      const [userAgent] = [headers['user-agent']];
-      const tokenInfo = this.generateUserAuthTokenPair(userInfo, userAgent, ip);
-      return tokenInfo;
+      // Update the expired flag for the refresh token and save.
+      const updatedRefreshToken = this.authRepository.merge(refreshTokenInfo, {
+        refresh_token_expired: true,
+      });
+
+      const updatedRefreshTokenInfo =
+        await this.authRepository.save(updatedRefreshToken);
+      if (updatedRefreshTokenInfo) {
+        const [userAgent] = [headers['user-agent']];
+        const tokenInfo = this.generateUserAuthTokenPair(
+          userInfo,
+          userAgent,
+          ip,
+        );
+        return tokenInfo;
+      }
+      throw new BadRequestException('This action cannot be performed.');
     } catch (error) {
       loggernaut.error(error.message);
       throw new BadRequestException(error.message);
@@ -118,7 +136,11 @@ export class AuthenticationService {
     }
   }
 
-  async generateUserAuthTokenPair(userInfo: any, userAgent: string, ip: string) {
+  async generateUserAuthTokenPair(
+    userInfo: any,
+    userAgent: string,
+    ip: string,
+  ) {
     const PASETO_LOCAL_KEY = await this.pasetoProvider.generatePaserkLocalKey();
     const pasetoPayload = {
       user_id: userInfo.id,
@@ -131,11 +153,11 @@ export class AuthenticationService {
       PASETO_LOCAL_KEY,
     );
     const refreshTokenFlag = this.configService.get('refresh_token_flag');
-    
+
     const refreshToken = await this.pasetoProvider.generateEncryptedToken(
       pasetoPayload,
       PASETO_LOCAL_KEY,
-      refreshTokenFlag
+      refreshTokenFlag,
     );
 
     const tokenObj = new Authentication();
