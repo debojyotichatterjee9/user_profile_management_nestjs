@@ -6,7 +6,6 @@ export class AppService {
     return 'Hello World!';
   }
   getHellos(): string {
-    console.log('Delete this later');
     return 'Hello World!';
   }
 }
