@@ -118,9 +118,7 @@ export class AuthenticationService {
         await this.logout(token);
         throw new UnauthorizedException('This is a invalid token.');
       }
-      loggernaut.info(tokenInfo.token_expired)
       if(tokenInfo.token_expired || tokenInfo.refresh_token_expired) {
-        loggernaut.trace("coming here")
         await this.logout(token);
         throw new UnauthorizedException('The token provided is already expired.');
       }
@@ -192,7 +190,9 @@ export class AuthenticationService {
       if (!token) {
         throw new UnauthorizedException('This is a invalid token.');
       }
-
+      if(tokenInfo.token_expired || tokenInfo.refresh_token_expired) {
+        throw new UnauthorizedException('The token provided is already expired.');
+      }
       // Invalidate the found token
       const updatedToken = this.authRepository.merge(tokenInfo, {
         token_expired: true,

@@ -268,7 +268,6 @@ export class UserService {
       user.meta_data.deleted_on = new Date();
 
       // Save the updated user back to the database
-      loggernaut.info(`User with ID ${id} has been soft deleted.`);
       return await this.userRepository.save(user);
     } catch (error) {
       loggernaut.error(error.message);
