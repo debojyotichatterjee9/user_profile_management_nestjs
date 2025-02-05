@@ -204,7 +204,6 @@ export class OrganizationService {
 
       // Save the updated organization back to the database
       return await this.organizationRepository.save(organization);
-      loggernaut.info(`Organization with ID ${id} has been soft deleted.`);
     } catch (error) {
       loggernaut.error(error.message);
       throw new BadRequestException(error.message);
