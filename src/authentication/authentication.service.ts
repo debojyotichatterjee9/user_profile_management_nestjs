@@ -111,11 +111,18 @@ export class AuthenticationService {
       const tokenInfo = await this.authRepository.findOne({
         where: {
           token: token,
-          is_expired: false,
         },
       });
       if (!tokenInfo) {
+        // If token exists in any case the force expire the token
+        await this.logout(token);
         throw new UnauthorizedException('This is a invalid token.');
+      }
+      loggernaut.info(tokenInfo.token_expired)
+      if(tokenInfo.token_expired || tokenInfo.refresh_token_expired) {
+        loggernaut.trace("coming here")
+        await this.logout(token);
+        throw new UnauthorizedException('The token provided is already expired.');
       }
       const decodedTokenInfo: any =
         await this.pasetoProvider.decodeEncryptedToken(token, tokenInfo.key);
@@ -123,6 +130,8 @@ export class AuthenticationService {
         decodedTokenInfo.user_id,
       );
       if (!userInfo) {
+        // If token exists in any case the force expire the token
+        await this.logout(token);
         throw new UnauthorizedException(
           'No user has been assigned this token.',
         );
@@ -186,7 +195,8 @@ export class AuthenticationService {
 
       // Invalidate the found token
       const updatedToken = this.authRepository.merge(tokenInfo, {
-        is_expired: true,
+        token_expired: true,
+        refresh_token_expired: true
       });
 
       // Save the updated token
