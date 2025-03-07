@@ -278,23 +278,41 @@ export class UserService {
   async findUserByIdentity(userIdentity: string) {
     try {
       let userInfo;
+      const activeUserConditions = {
+        'meta_data.is_enabled': true,
+        'meta_data.is_activated': true,
+        'meta_data.is_deleted': false,
+      };
+      const metaDataCondQuery = `
+            meta_data.is_enabled = :isEnabled 
+            AND meta_data.is_activated = :isActivated 
+            AND meta_data.is_deleted = :isDeleted
+        `;
       if (uuidValidate(userIdentity)) {
-        userInfo = await this.userRepository.findOne({
-          where: {
-            id: userIdentity,
-          },
-        });
+        userInfo = await this.userRepository
+          .createQueryBuilder('user')
+          .leftJoinAndSelect('user.meta_data', 'meta_data')
+          .where('user.id = :id', { id: userIdentity })
+          .andWhere(metaDataCondQuery, {
+            isEnabled: activeUserConditions['meta_data.is_enabled'],
+            isActivated: activeUserConditions['meta_data.is_activated'],
+            isDeleted: activeUserConditions['meta_data.is_deleted'],
+          })
+          .getOne();
       } else {
-        userInfo = await this.userRepository.findOneOrFail({
-          where: [
-            {
-              email: userIdentity,
-            },
-            {
-              username: userIdentity,
-            },
-          ],
-        });
+        userInfo = await this.userRepository
+          .createQueryBuilder('user')
+          .leftJoinAndSelect('user.meta_data', 'meta_data')
+          .where('user.email = :email OR user.username = :username', {
+            email: userIdentity,
+            username: userIdentity,
+          })
+          .andWhere(metaDataCondQuery, {
+            isEnabled: activeUserConditions['meta_data.is_enabled'],
+            isActivated: activeUserConditions['meta_data.is_activated'],
+            isDeleted: activeUserConditions['meta_data.is_deleted'],
+          })
+          .getOne();
       }
       if (!userInfo) {
         throw new NotFoundException(
