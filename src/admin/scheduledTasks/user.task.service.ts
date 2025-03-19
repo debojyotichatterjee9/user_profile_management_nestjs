@@ -24,24 +24,33 @@ export class UserTasksService {
     disabled: false, // TODO: make this part dynamic later
   })
   async addRandomUserTask() {
-    const environment = this.configService.get('environment');
-    if (environment === 'development') {
-      loggernaut.info('Running: ADD_RANDOM_USER_TASK');
-      const randomDummyUser =
-        this.randomDataProvider.generaterandomDummyUserData();
-      const existingUser = await this.userRepository
-        .createQueryBuilder('user')
-        .where('user.email = :email OR user.username = :username', {
-          email: randomDummyUser.email,
-          username: randomDummyUser.username,
-        })
-        .getOne();
-      if (!existingUser) {
-        const insertedUser = await this.userService.createUser(randomDummyUser);
-        loggernaut.info(`User Inserted --> ${insertedUser.id}`);
+    try {
+      const environment = this.configService.get('environment');
+      if (environment === 'development') {
+        loggernaut.info('Running: ADD_RANDOM_USER_TASK');
+        const randomDummyUser =
+          this.randomDataProvider.generaterandomDummyUserData();
+        const existingUser = await this.userRepository
+          .createQueryBuilder('user')
+          .where('user.email = :email OR user.username = :username', {
+            email: randomDummyUser.email,
+            username: randomDummyUser.username,
+          })
+          .getOne();
+        if (!existingUser) {
+          const insertedUser =
+            await this.userService.createUser(randomDummyUser);
+          loggernaut.info(`User Inserted --> ${insertedUser.id}`);
+        } else {
+          loggernaut.warn(
+            `Skipping user insertion as the email already exists.`,
+          );
+        }
+      } else {
+        loggernaut.info('Scheduled Tasks Disabled in this environment.');
       }
-    } else {
-      loggernaut.info('Scheduled Tasks Disabled in this environment.');
+    } catch (error) {
+      loggernaut.error(error.message);
     }
   }
 }
