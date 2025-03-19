@@ -20,6 +20,7 @@ import { ConfigModule } from '@nestjs/config';
 import configuration from 'src/configuration/configuration';
 import { ScheduleModule } from '@nestjs/schedule';
 import { UserTasksService } from 'src/admin/scheduledTasks/user.task.service';
+import { AdminModule } from 'src/admin/admin.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -55,6 +56,7 @@ import { UserTasksService } from 'src/admin/scheduledTasks/user.task.service';
       subscribers: [],
       migrations: [],
     }),
+    AdminModule,
     AuthenticationModule,
     UserModule,
     OrganizationModule,
