@@ -19,7 +19,7 @@ export class UserTasksService {
     private readonly userService: UserService,
   ) {}
 
-  @Cron(CronExpression.EVERY_5_SECONDS, {
+  @Cron(CronExpression.EVERY_10_MINUTES, {
     name: 'ADD_RANDOM_USER_TASK',
     disabled: false, // TODO: make this part dynamic later
   })
