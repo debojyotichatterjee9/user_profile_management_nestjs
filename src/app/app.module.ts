@@ -18,12 +18,16 @@ import { AuthenticationModule } from 'src/authentication/authentication.module';
 import { Authentication } from 'src/authentication/entities/authentication.entity';
 import { ConfigModule } from '@nestjs/config';
 import configuration from 'src/configuration/configuration';
+import { ScheduleModule } from '@nestjs/schedule';
+import { UserTasksService } from 'src/admin/scheduledTasks/user.task.service';
+import { AdminModule } from 'src/admin/admin.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
       load: [configuration],
       isGlobal: true,
     }),
+    ScheduleModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
@@ -52,12 +56,13 @@ import configuration from 'src/configuration/configuration';
       subscribers: [],
       migrations: [],
     }),
+    AdminModule,
     AuthenticationModule,
     UserModule,
     OrganizationModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, UserTasksService],
   exports:[]
 })
 export class AppModule {}
