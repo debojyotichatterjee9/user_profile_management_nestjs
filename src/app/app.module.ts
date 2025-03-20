@@ -21,6 +21,7 @@ import configuration from 'src/configuration/configuration';
 import { ScheduleModule } from '@nestjs/schedule';
 import { UserTasksService } from 'src/admin/scheduledTasks/user.task.service';
 import { AdminModule } from 'src/admin/admin.module';
+import { OrganizationTasksService } from 'src/admin/scheduledTasks/organization.task.service';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -62,7 +63,7 @@ import { AdminModule } from 'src/admin/admin.module';
     OrganizationModule,
   ],
   controllers: [AppController],
-  providers: [AppService, UserTasksService],
+  providers: [AppService],
   exports:[]
 })
 export class AppModule {}

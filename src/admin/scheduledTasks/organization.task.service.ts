@@ -8,46 +8,49 @@ import { Repository } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
+import { OrganizationService } from 'src/organization/organization.service';
 
 @Injectable()
-export class UserTasksService {
+export class OrganizationTasksService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly configService: ConfigService,
     private readonly randomDataProvider: RandomDataProvider,
-    private readonly userService: UserService,
+    private readonly organizationService: OrganizationService,
   ) {}
 
   @Cron(CronExpression.EVERY_10_MINUTES, {
-    name: 'ADD_RANDOM_USER_TASK',
+    name: 'ADD_RANDOM_ORGANIZATION_TASK',
     disabled: false, // TODO: make this part dynamic later
   })
   async addRandomUserTask() {
     try {
       const environment = this.configService.get('environment');
       if (environment === 'development') {
-        loggernaut.info('Running: ADD_RANDOM_USER_TASK');
-        const randomDummyUser =
-          this.randomDataProvider.generaterandomDummyUserData();
-        const existingUser = await this.userRepository
-          .createQueryBuilder('user')
-          .where('user.email = :email OR user.username = :username', {
-            email: randomDummyUser.email,
-            username: randomDummyUser.username,
+        loggernaut.info('Running: ADD_RANDOM_ORGANIZATION_TASK');
+        const randomDummyOrganization =
+          this.randomDataProvider.generaterandomDummyOrganizationData();
+        const existingOrganization = await this.userRepository
+          .createQueryBuilder('organization')
+          .where('organization.email = :email', {
+            email: randomDummyOrganization.contact_email,
           })
           .getOne();
-        if (!existingUser) {
-          const insertedUser =
-            await this.userService.createUser(randomDummyUser);
-          loggernaut.info(`User Inserted --> ${insertedUser.id}`);
+        if (!existingOrganization) {
+          const insertedOrg = await this.organizationService.create(
+            randomDummyOrganization,
+          );
+          loggernaut.info(`Organization Inserted --> ${insertedOrg.id}`);
         } else {
           loggernaut.warn(
-            `Skipping user insertion as the email already exists.`,
+            `Skipping Organization insertion as the contact email already exists.`,
           );
         }
       } else {
-        loggernaut.info(`Scheduled Tasks Disabled in ${environment} environment.`);
+        loggernaut.info(
+          `Scheduled Tasks Disabled in ${environment} environment.`,
+        );
       }
     } catch (error) {
       loggernaut.error(error.message);
