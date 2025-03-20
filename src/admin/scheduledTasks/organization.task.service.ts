@@ -20,7 +20,7 @@ export class OrganizationTasksService {
     private readonly organizationService: OrganizationService,
   ) {}
 
-  @Cron(CronExpression.EVERY_10_SECONDS, {
+  @Cron(CronExpression.EVERY_10_MINUTES, {
     name: 'ADD_RANDOM_ORGANIZATION_TASK',
     disabled: false, // TODO: make this part dynamic later
   })
@@ -31,9 +31,6 @@ export class OrganizationTasksService {
         loggernaut.info('Running: ADD_RANDOM_ORGANIZATION_TASK');
         const randomDummyOrganization =
           this.randomDataProvider.generaterandomDummyOrganizationData();
-          console.log('>> $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ <<');
-          loggernaut.debug(randomDummyOrganization)
-          console.log('>> $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ <<');
         const existingOrganization = await this.userRepository
           .createQueryBuilder('organization')
           .where('organization.email = :email', {
@@ -41,8 +38,9 @@ export class OrganizationTasksService {
           })
           .getOne();
         if (!existingOrganization) {
-          const insertedOrg =
-            await this.organizationService.create(randomDummyOrganization);
+          const insertedOrg = await this.organizationService.create(
+            randomDummyOrganization,
+          );
           loggernaut.info(`Organization Inserted --> ${insertedOrg.id}`);
         } else {
           loggernaut.warn(
@@ -50,7 +48,9 @@ export class OrganizationTasksService {
           );
         }
       } else {
-        loggernaut.info(`Scheduled Tasks Disabled in ${environment} environment.`);
+        loggernaut.info(
+          `Scheduled Tasks Disabled in ${environment} environment.`,
+        );
       }
     } catch (error) {
       loggernaut.error(error.message);
