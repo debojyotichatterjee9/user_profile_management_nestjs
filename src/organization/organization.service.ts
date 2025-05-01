@@ -29,11 +29,9 @@ export class OrganizationService {
    * @return The `create` method is returning the organization entity that is created and saved in the
    * database.
    */
-  async create(createOrganizationDto: CreateOrganizationDto) {
+  async create(payload: CreateOrganizationDto): Promise<Organization> {
     try {
-      const organization = this.organizationRepository.create(
-        createOrganizationDto,
-      );
+      const organization = this.organizationRepository.create(payload);
       return await this.organizationRepository.save(organization);
     } catch (error) {
       throw new BadRequestException(error.message);

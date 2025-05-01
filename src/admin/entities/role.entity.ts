@@ -11,8 +11,8 @@ import { Permission } from './permission.entity';
 
 @Entity()
 export class Role {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
   name: string;
@@ -24,6 +24,9 @@ export class Role {
   )
   @JoinTable()
   permissions: Permission[];
+
+  @Column({ default: true })
+  is_enabled: boolean;
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdOn: Date;

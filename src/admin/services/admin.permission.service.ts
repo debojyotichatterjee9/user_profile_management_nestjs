@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Permission } from '../entities/permission.entity';
+import { CreatePermissionDto } from '../dto/request.dtos/create.permission.dto';
 
 @Injectable()
 export class PermissionsService {
@@ -9,6 +10,15 @@ export class PermissionsService {
     @InjectRepository(Permission)
     private permissionsRepository: Repository<Permission>,
   ) {}
+
+  async create(payload: CreatePermissionDto): Promise<Permission> {
+    try {
+      const permission: Permission = this.permissionsRepository.create(payload);
+      return await this.permissionsRepository.save(permission);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
 
   findAll(): Promise<Permission[]> {
     return this.permissionsRepository.find({ relations: ['roles'] });
@@ -21,10 +31,6 @@ export class PermissionsService {
    */
   findOne(id: number): Promise<Permission> {
     return this.permissionsRepository.findOne(id, { relations: ['roles'] });
-  }
-
-  create(permission: Permission): Promise<Permission> {
-    return this.permissionsRepository.save(permission);
   }
 
   async remove(id: number): Promise<void> {

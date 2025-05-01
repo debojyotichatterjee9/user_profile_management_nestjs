@@ -64,6 +64,9 @@ export class User {
   @Column({ type: 'uuid', default: NIL_UUID })
   organization_id: string;
 
+  @Column({ type: 'uuid', default: NIL_UUID })
+  role_id: string;
+
   @Column({ nullable: true })
   secret_hash: string;
 

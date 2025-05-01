@@ -1,10 +1,20 @@
 import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { PermissionsService } from '../services/admin.permission.service';
 import { Permission } from '../entities/permission.entity';
+import { CreatePermissionDto } from '../dto/request.dtos/create.permission.dto';
+import { Serialize } from '../../interceptors/serialize.interceptor';
+import { CreateGenericResponseDto } from '../dto/response.dtos/create.generic.response.dto';
 
-@Controller('permissions')
+@Controller('admin/permission')
 export class PermissionsController {
   constructor(private readonly permissionsService: PermissionsService) {}
+
+
+  @Serialize(CreateGenericResponseDto)
+  @Post('create')
+  create(@Body() payload: CreatePermissionDto): Promise<Permission> {
+    return this.permissionsService.create(payload);
+  }
 
   @Get()
   findAll(): Promise<Permission[]> {
@@ -14,11 +24,6 @@ export class PermissionsController {
   @Get(':id')
   findOne(@Param('id') id: string): Promise<Permission> {
     return this.permissionsService.findOne(+id);
-  }
-
-  @Post()
-  create(@Body() permission: Permission): Promise<Permission> {
-    return this.permissionsService.create(permission);
   }
 
   @Delete(':id')

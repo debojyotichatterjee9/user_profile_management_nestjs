@@ -202,7 +202,7 @@ export class UserService {
       return userInfo;
     } catch (error) {
       loggernaut.error(error.message);
-      throw new BadRequestException(error.message, error.statusC);
+      throw new BadRequestException(error.message, error.statusCode);
     }
   }
   /**

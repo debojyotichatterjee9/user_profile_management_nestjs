@@ -10,9 +10,17 @@ import { RolesController } from './controllers/admin.role.controller';
 import { PermissionsController } from './controllers/admin.permission.controller';
 import { PermissionsService } from './services/admin.permission.service';
 import { RolesService } from './services/admin.role.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from '../user/entities/user.entity';
+import { Role } from './entities/role.entity';
+import { Permission } from './entities/permission.entity';
 
 @Module({
-  imports: [UserModule, OrganizationModule],
+  imports: [
+    UserModule,
+    OrganizationModule,
+    TypeOrmModule.forFeature([User, Role, Permission]),
+  ],
   controllers: [AdminController, RolesController, PermissionsController],
   providers: [
     AdminService,

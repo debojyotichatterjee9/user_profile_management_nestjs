@@ -10,7 +10,6 @@ import {
 import { Role } from './role.entity';
 
 @Entity({ name: 'permissions' })
-@Index(['role_id'], { unique: true })
 export class Permission {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -18,11 +17,8 @@ export class Permission {
   @Column({ nullable: false })
   name: string;
 
-  @Column({ nullable: false })
-  role_id: string;
-
-  @Column({ default: false })
-  value: boolean;
+  @Column({ default: true })
+  is_enabled: boolean;
 
   @ManyToMany(
     (): typeof Role => Role,

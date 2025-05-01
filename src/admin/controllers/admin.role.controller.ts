@@ -1,12 +1,21 @@
 import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { RolesService } from '../services/admin.role.service';
 import { Role } from '../entities/role.entity';
+import { Serialize } from '../../interceptors/serialize.interceptor';
+import { CreateGenericResponseDto } from '../dto/response.dtos/create.generic.response.dto';
+import { CreateRoleDto } from '../dto/request.dtos/create.role.dto';
 
-@Controller('roles')
+@Controller('admin/role')
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
 
-  @Get()
+  @Serialize(CreateGenericResponseDto)
+  @Post('create')
+  create(@Body() role: CreateRoleDto): Promise<Role> {
+    return this.rolesService.create(role);
+  }
+
+  @Get('list')
   findAll(): Promise<Role[]> {
     return this.rolesService.findAll();
   }
@@ -14,11 +23,6 @@ export class RolesController {
   @Get(':id')
   findOne(@Param('id') id: string): Promise<Role> {
     return this.rolesService.findOne(+id);
-  }
-
-  @Post()
-  create(@Body() role: Role): Promise<Role> {
-    return this.rolesService.create(role);
   }
 
   @Delete(':id')
