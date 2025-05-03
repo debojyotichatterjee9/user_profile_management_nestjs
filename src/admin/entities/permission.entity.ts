@@ -2,14 +2,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  Index,
   ManyToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Role } from './role.entity';
 
-@Entity({ name: 'permissions' })
+@Entity({ name: 'permission' })
 export class Permission {
   @PrimaryGeneratedColumn('uuid')
   id: string;
