@@ -10,6 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PaginationQueryParams } from './dto/request.dtos/fetch.organization.list.dto';
 import loggernaut from 'loggernaut';
+import { OrganizationListResponseDto } from './dto/response.dtos/fetch.organization.list.response.dto';
 
 @Injectable()
 export class OrganizationService {
@@ -42,7 +43,6 @@ export class OrganizationService {
    * This function retrieves a list of organizations based on pagination query parameters, including
    * search criteria, page number, and limit.
    *
-   * @param PaginationQueryParams queryParams The `findAll` function you provided is an asynchronous
    * function that retrieves a list of organizations based on the provided `PaginationQueryParams`. The
    * `PaginationQueryParams` object likely contains information such as search keywords, page number,
    * and limit for pagination.
@@ -51,8 +51,11 @@ export class OrganizationService {
    * - `totalCount`: Total count of organizations in the database
    * - `filterCount`: Count of organizations after applying the search and pagination filters
    * - `organizationList`: List of organizations that match the search criteria and pagination limits
+   * @param queryParams
    */
-  async findAll(queryParams: PaginationQueryParams) {
+  async findAll(
+    queryParams: PaginationQueryParams,
+  ): Promise<OrganizationListResponseDto> {
     try {
       const {
         search,

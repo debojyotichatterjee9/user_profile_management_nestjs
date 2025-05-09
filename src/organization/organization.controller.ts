@@ -1,11 +1,11 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   Query,
 } from '@nestjs/common';
 import { OrganizationService } from './organization.service';
@@ -30,7 +30,9 @@ export class OrganizationController {
 
   @Serialize(OrganizationListResponseDto)
   @Get('list')
-  findAll(@Query() queryParams: PaginationQueryParams) {
+  findAll(
+    @Query() queryParams: PaginationQueryParams,
+  ): Promise<OrganizationListResponseDto> {
     return this.organizationService.findAll(queryParams);
   }
 
