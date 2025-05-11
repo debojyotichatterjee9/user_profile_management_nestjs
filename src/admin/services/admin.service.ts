@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { CreateAdminDto } from './dto/create-admin.dto';
-import { UpdateAdminDto } from './dto/update-admin.dto';
-import { UserTasksService } from './scheduledTasks/user.task.service';
+import { CreateAdminDto } from '../dto/create-admin.dto';
+import { UpdateAdminDto } from '../dto/update-admin.dto';
+import { UserTasksService } from '../scheduledTasks/user.task.service';
 import { RandomDataProvider } from 'src/utilProviders/randomData.util.provider';
-import { OrganizationTasksService } from './scheduledTasks/organization.task.service';
+import { OrganizationTasksService } from '../scheduledTasks/organization.task.service';
 
 @Injectable()
 export class AdminService {

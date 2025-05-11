@@ -22,6 +22,9 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { UserTasksService } from 'src/admin/scheduledTasks/user.task.service';
 import { AdminModule } from 'src/admin/admin.module';
 import { OrganizationTasksService } from 'src/admin/scheduledTasks/organization.task.service';
+import { Permission } from 'src/admin/entities/permission.entity';
+import { Role } from 'src/admin/entities/role.entity';
+import { Admin } from 'typeorm';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -42,6 +45,9 @@ import { OrganizationTasksService } from 'src/admin/scheduledTasks/organization.
       synchronize: true,
       logging: true,
       entities: [
+        Admin,
+        Permission,
+        Role,
         Authentication,
         User,
         Address,
