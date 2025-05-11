@@ -1,6 +1,0 @@
-{
-  "docwriter.style": "reST",
-  "docwriter.progress.trackFunctions": true,
-  "docwriter.progress.trackMethods": false,
-  "docwriter.hotkey.mac": "⌘ + ."
-}
