@@ -10,6 +10,7 @@ import { CreatePermissionDto } from '../dto/request.dtos/create.permission.dto';
 import { PaginationQueryParams } from '../dto/request.dtos/generic.pagination.list.dto';
 import { PermissionListResponseDto } from '../dto/response.dtos/permission.list.response.dto';
 import loggernaut from 'loggernaut';
+import { UpdatePermissionDto } from '../dto/request.dtos/update.permission.dto';
 
 @Injectable()
 export class PermissionsService {
@@ -27,6 +28,24 @@ export class PermissionsService {
     }
   }
 
+  /**
+   * This function retrieves a list of permissions based on pagination query
+   * parameters, including search criteria, page number, and limit.
+   *
+   * @param queryParams The `findAll` function you provided is an
+   * asynchronous function that retrieves a list of permissions based on the
+   * pagination query parameters passed to it. The function performs a database
+   * query to fetch permissions with optional search criteria and pagination
+   * settings.
+   *
+   * @return The function `findAll` returns a Promise that resolves to a
+   * `PermissionListResponseDto` object. This object contains the following
+   * properties:
+   * - `totalCount`: Total count of permissions in the database.
+   * - `filterCount`: Count of permissions after applying the pagination filters.
+   * - `permissionList`: An array of permission objects that match the pagination
+   * criteria.
+   */
   async findAll(
     queryParams: PaginationQueryParams,
   ): Promise<PermissionListResponseDto> {
@@ -39,19 +58,16 @@ export class PermissionsService {
       const query =
         this.permissionsRepository.createQueryBuilder('permissions');
       if (search) {
-        query.where(
-          'name ILIKE :search OR contact_email ILIKE :search AND is_deleted = :deleted',
-          {
-            deleted: false,
-            search: `%${search}%`,
-          },
-        );
+        query.where('name ILIKE :search AND is_enabled = :enabled', {
+          enabled: true,
+          search: `%${search}%`,
+        });
       } else {
-        query.where('is_deleted = :deleted', {
-          deleted: false,
+        query.where('is_enabled = :enabled', {
+          enabled: true,
         });
       }
-      const totalCount = await this.permissionsRepository.count();
+      const totalCount: number = await this.permissionsRepository.count();
 
       if (page > totalCount && limit > totalCount) {
         throw new NotFoundException(
@@ -65,7 +81,8 @@ export class PermissionsService {
           .take(limit)
           .getManyAndCount(),
       ]);
-      const [data, filterCount] = filterResult;
+      let [data, filterCount] = filterResult;
+      filterCount = search ? filterCount : data.length;
       return {
         totalCount,
         filterCount,
@@ -82,11 +99,67 @@ export class PermissionsService {
    * @param id - The unique identifier of the permission to retrieve.
    * @returns A promise that resolves to the found Permission object, including its related roles.
    */
-  findOne(id: number): Promise<Permission> {
-    return this.permissionsRepository.findOne(id, { relations: ['roles'] });
+  async findOne(id: string): Promise<Permission> {
+    try {
+      const permissionInfo: Permission | null =
+        await this.permissionsRepository.findOne({
+          where: {
+            id,
+          },
+        });
+      if (!permissionInfo) {
+        throw new NotFoundException('Permission not found!');
+      }
+      return permissionInfo;
+    } catch (error) {
+      loggernaut.error(error.message);
+      throw new BadRequestException(error.message, error.status);
+    }
   }
 
-  async remove(id: number): Promise<void> {
-    await this.permissionsRepository.delete(id);
+  async update(id: string, payload: UpdatePermissionDto): Promise<Permission> {
+    try {
+      const permission: Permission | null =
+        await this.permissionsRepository.findOne({
+          where: { id },
+        });
+
+      if (!permission) {
+        throw new NotFoundException('Permission not found!');
+      }
+
+      // Merge the existing permission with the new data
+      const updatedPermission: Permission = this.permissionsRepository.merge(
+        permission,
+        payload,
+      );
+
+      // Save the updated organization back to the database
+      return await this.permissionsRepository.save(updatedPermission);
+    } catch (error) {
+      loggernaut.error(error.message);
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async remove(id: string): Promise<Permission> {
+    try {
+      const permission: Permission | null =
+        await this.permissionsRepository.findOne({
+          where: { id },
+        });
+
+      if (!permission) {
+        throw new NotFoundException('Permission not found!');
+      }
+
+      // Update the permission for soft delete
+      permission.is_enabled = false;
+      // Save the updated permission back to the database
+      return await this.permissionsRepository.save(permission);
+    } catch (error) {
+      loggernaut.error(error.message);
+      throw new BadRequestException(error.message);
+    }
   }
 }
