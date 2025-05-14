@@ -10,6 +10,7 @@ import { CreateRoleDto } from '../dto/request.dtos/create.role.dto';
 import { Permission } from '../entities/permission.entity';
 import { PaginationQueryParams } from '../../user/dto/request.dtos/fetch.user.list.dto';
 import loggernaut from 'loggernaut';
+import { UpdateRoleDto } from '../dto/request.dtos/update.role.dto';
 
 @Injectable()
 export class RolesService {
