@@ -1,9 +1,16 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { In, Repository, SelectQueryBuilder } from 'typeorm';
 import { Role } from '../entities/role.entity';
 import { CreateRoleDto } from '../dto/request.dtos/create.role.dto';
 import { Permission } from '../entities/permission.entity';
+import { PaginationQueryParams } from '../../user/dto/request.dtos/fetch.user.list.dto';
+import loggernaut from 'loggernaut';
+import { UpdateRoleDto } from '../dto/request.dtos/update.role.dto';
 
 @Injectable()
 export class RolesService {
@@ -41,6 +48,7 @@ export class RolesService {
           );
         }
       }
+      console.log(permissions);
       const role: Role = this.rolesRepository.create({
         ...payload,
         permissions,
@@ -50,15 +58,110 @@ export class RolesService {
       throw new BadRequestException(error.message);
     }
   }
-  findAll(): Promise<Role[]> {
-    return this.rolesRepository.find({ relations: ['permissions'] });
+
+  async findAll(queryParams: PaginationQueryParams): Promise<Role[]> {
+    try {
+      const {
+        search,
+        page,
+        limit,
+      }: { search?: string; page?: any; limit?: any } = queryParams;
+      const query: SelectQueryBuilder<Role> =
+        this.rolesRepository.createQueryBuilder('roles');
+      if (search) {
+        query.where('name ILIKE :search AND is_enabled = :enabled', {
+          enabled: true,
+          search: `%${search}%`,
+        });
+      } else {
+        query.where('is_enabled = :enabled', {
+          enabled: true,
+        });
+      }
+      const totalCount: number = await this.rolesRepository.count();
+
+      if (page > totalCount && limit > totalCount) {
+        throw new NotFoundException(
+          'The page number exceeds the maximum number of records.',
+        );
+      }
+
+      const [filterResult] = await Promise.all([
+        query
+          .skip((page - 1) * limit)
+          .take(limit)
+          .getManyAndCount(),
+      ]);
+      let [data, filterCount] = filterResult;
+      filterCount = search ? filterCount : data.length;
+      return {
+        totalCount,
+        filterCount,
+        roleList: data,
+      };
+    } catch (error) {
+      loggernaut.error(error.message);
+      throw new BadRequestException(error.message, error.status);
+    }
   }
 
-  findOne(id: number): Promise<Role> {
-    return this.rolesRepository.findOne(id, { relations: ['permissions'] });
+  async findOne(id: string): Promise<Role> {
+    // TODO: add permission information in the details API response
+    try {
+      const roleInfo: Role | null = await this.rolesRepository.findOne({
+        where: {
+          id,
+        },
+      });
+      if (!roleInfo) {
+        throw new NotFoundException('Role not found!');
+      }
+      return roleInfo;
+    } catch (error) {
+      loggernaut.error(error.message);
+      throw new BadRequestException(error.message, error.status);
+    }
   }
 
-  async remove(id: number): Promise<void> {
-    await this.rolesRepository.delete(id);
+  async update(id: string, payload: UpdateRoleDto): Promise<Role> {
+    // TODO: this function should also update permissions addition and removal both
+    try {
+      const role: Role | null = await this.rolesRepository.findOne({
+        where: { id },
+      });
+
+      if (!role) {
+        throw new NotFoundException('Role not found!');
+      }
+
+      // Merge the existing role with the new data
+      const updatedRole: Role = this.rolesRepository.merge(role, payload);
+
+      // Save the updated organization back to the database
+      return await this.rolesRepository.save(updatedRole);
+    } catch (error) {
+      loggernaut.error(error.message);
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async remove(id: string): Promise<Role> {
+    try {
+      const role: Role | null = await this.rolesRepository.findOne({
+        where: { id },
+      });
+
+      if (!role) {
+        throw new NotFoundException('Role not found!');
+      }
+
+      // Update the role for soft delete
+      role.is_enabled = false;
+      // Save the updated role back to the database
+      return await this.rolesRepository.save(role);
+    } catch (error) {
+      loggernaut.error(error.message);
+      throw new BadRequestException(error.message);
+    }
   }
 }

@@ -45,7 +45,6 @@ export class PermissionsController {
     @Param('id') id: string,
     @Body() payload: UpdatePermissionDto,
   ): Promise<Permission> {
-    console.log(payload);
     return this.permissionsService.update(id, payload);
   }
 
