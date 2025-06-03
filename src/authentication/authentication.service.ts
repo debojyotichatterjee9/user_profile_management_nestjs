@@ -12,6 +12,7 @@ import { Repository } from 'typeorm';
 import { UserService } from 'src/user/user.service';
 import { PasetoProvider } from 'src/utilProviders/paseto.util.provider';
 import { ConfigService } from '@nestjs/config';
+
 const { V3 } = require('paseto');
 
 @Injectable()
@@ -19,7 +20,7 @@ export class AuthenticationService {
   constructor(
     @InjectRepository(Authentication)
     private readonly authRepository: Repository<Authentication>,
-    private configService: ConfigService,
+    private readonly configService: ConfigService,
     private readonly userService: UserService,
     private readonly pasetoProvider: PasetoProvider,
   ) {}
@@ -118,9 +119,11 @@ export class AuthenticationService {
         await this.logout(token);
         throw new UnauthorizedException('This is a invalid token.');
       }
-      if(tokenInfo.token_expired || tokenInfo.refresh_token_expired) {
+      if (tokenInfo.token_expired || tokenInfo.refresh_token_expired) {
         await this.logout(token);
-        throw new UnauthorizedException('The token provided is already expired.');
+        throw new UnauthorizedException(
+          'The token provided is already expired.',
+        );
       }
       const decodedTokenInfo: any =
         await this.pasetoProvider.decodeEncryptedToken(token, tokenInfo.key);
@@ -190,13 +193,15 @@ export class AuthenticationService {
       if (!token) {
         throw new UnauthorizedException('This is a invalid token.');
       }
-      if(tokenInfo.token_expired || tokenInfo.refresh_token_expired) {
-        throw new UnauthorizedException('The token provided is already expired.');
+      if (tokenInfo.token_expired || tokenInfo.refresh_token_expired) {
+        throw new UnauthorizedException(
+          'The token provided is already expired.',
+        );
       }
       // Invalidate the found token
       const updatedToken = this.authRepository.merge(tokenInfo, {
         token_expired: true,
-        refresh_token_expired: true
+        refresh_token_expired: true,
       });
 
       // Save the updated token

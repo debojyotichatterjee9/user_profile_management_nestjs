@@ -15,13 +15,16 @@ import { UserListResponseDto } from './dto/response.dtos/user.list.response.dto'
 import { User } from './entities/user.entity';
 import { MetaData } from './entities/user.metadata.entity';
 import { ConfigService } from '@nestjs/config';
-import { validate as uuidValidate } from 'uuid';
+import { NIL as NIL_UUID, validate as uuidValidate } from 'uuid';
+import { Role } from '../admin/entities/role.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Role)
+    private readonly roleRepository: Repository<Role>,
     private readonly configService: ConfigService,
   ) {}
   /**
@@ -319,6 +322,40 @@ export class UserService {
           'User with the email/username does not exist',
         );
       }
+      if (userInfo.role_id && userInfo.role_id !== NIL_UUID) {
+        const roleWithPermissions = await this.roleRepository
+          .createQueryBuilder('role')
+          .leftJoinAndSelect('role.permissions', 'permissions')
+          .select([
+            'role.id',
+            'role.name',
+            'role.is_enabled',
+            'permissions.id',
+            'permissions.name',
+            'permissions.is_enabled',
+          ])
+          .where('role.id = :roleId AND role.is_enabled = true', {
+            roleId: userInfo.role_id,
+          })
+          .getOne();
+
+        // Add role and permissions to the user object
+        if (roleWithPermissions) {
+          userInfo.role = {
+            id: roleWithPermissions.id,
+            name: roleWithPermissions.name,
+            is_enabled: roleWithPermissions.is_enabled,
+            permissions: roleWithPermissions.permissions || [],
+          };
+        }
+      }
+      console.log(
+        '***********************************************************************',
+      );
+      loggernaut.debug(JSON.stringify(userInfo));
+      console.log(
+        '***********************************************************************',
+      );
       return userInfo;
     } catch (error) {
       loggernaut.error(error.message);
