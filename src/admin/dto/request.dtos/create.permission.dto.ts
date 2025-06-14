@@ -8,3 +8,8 @@ export class CreatePermissionDto {
   @IsBoolean()
   is_enabled?: boolean;
 }
+
+export class CreatePermissionBulkDto {
+  @IsArray()
+  permissions: CreatePermissionDto[];
+}
