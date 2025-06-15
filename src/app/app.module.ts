@@ -19,12 +19,14 @@ import { Authentication } from 'src/authentication/entities/authentication.entit
 import { ConfigModule } from '@nestjs/config';
 import configuration from 'src/configuration/configuration';
 import { ScheduleModule } from '@nestjs/schedule';
-import { UserTasksService } from 'src/admin/scheduledTasks/user.task.service';
 import { AdminModule } from 'src/admin/admin.module';
-import { OrganizationTasksService } from 'src/admin/scheduledTasks/organization.task.service';
 import { Permission } from 'src/admin/entities/permission.entity';
 import { Role } from 'src/admin/entities/role.entity';
 import { Admin } from 'typeorm';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from '../guards/auth.guard';
+import { RolesGuard } from '../guards/roles.guard';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -69,7 +71,17 @@ import { Admin } from 'typeorm';
     OrganizationModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
-  exports:[]
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
+  exports: [],
 })
 export class AppModule {}

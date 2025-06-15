@@ -14,6 +14,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
 import { Role } from './entities/role.entity';
 import { Permission } from './entities/permission.entity';
+import { AuthenticationService } from '../authentication/authentication.service';
+import { PasetoProvider } from '../utilProviders/paseto.util.provider';
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { Permission } from './entities/permission.entity';
   controllers: [AdminController, RolesController, PermissionsController],
   providers: [
     AdminService,
+    AuthenticationService,
+    PasetoProvider,
     UserTasksService,
     OrganizationTasksService,
     RandomDataProvider,

@@ -11,10 +11,13 @@ import { Authentication } from 'src/authentication/entities/authentication.entit
 import { UserService } from 'src/user/user.service';
 import { PasetoProvider } from 'src/utilProviders/paseto.util.provider';
 import { Repository } from 'typeorm';
+import { Reflector } from '@nestjs/core';
+import { PUBLIC_API_KEY } from '../config/generic.constants';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
+    private reflector: Reflector,
     @InjectRepository(Authentication)
     private readonly authRepository: Repository<Authentication>,
     private readonly userService: UserService,
@@ -23,6 +26,13 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const isPublicApi = this.reflector.getAllAndOverride<boolean>(
+      PUBLIC_API_KEY,
+      [context.getHandler(), context.getClass()],
+    );
+    if (isPublicApi) {
+      return true;
+    }
     const request = context.switchToHttp().getRequest();
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
 

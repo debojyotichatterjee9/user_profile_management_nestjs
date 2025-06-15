@@ -18,11 +18,13 @@ import { AuthenticateResponseDto } from './dto/response.dtos/authenticate.respon
 import { RefreshLoginResponseDto } from './dto/response.dtos/authenticate.refresh.response.dto';
 import { LogoutResponseDto } from './dto/response.dtos/authenticate.logout.response.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { Public } from '../decorators/public.decorator';
 
 @Controller('authenticate')
 export class AuthenticationController {
   constructor(private readonly authenticationService: AuthenticationService) {}
 
+  @Public()
   @Serialize(LoginResponseDto)
   @Post('login')
   login(
@@ -34,7 +36,6 @@ export class AuthenticationController {
     return this.authenticationService.login(ip, headers, payload, session);
   }
 
-  @UseGuards(AuthGuard)
   @Serialize(RefreshLoginResponseDto)
   @Get('refresh')
   getRefresheToken(

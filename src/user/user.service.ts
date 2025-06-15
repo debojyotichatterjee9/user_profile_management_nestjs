@@ -17,6 +17,7 @@ import { MetaData } from './entities/user.metadata.entity';
 import { ConfigService } from '@nestjs/config';
 import { NIL as NIL_UUID, validate as uuidValidate } from 'uuid';
 import { Role } from '../admin/entities/role.entity';
+import { OrganizationService } from '../organization/organization.service';
 
 @Injectable()
 export class UserService {
@@ -25,19 +26,9 @@ export class UserService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
+    private readonly organizationService: OrganizationService,
     private readonly configService: ConfigService,
   ) {}
-  /**
-   * The function `registerUser` takes a `RegisterUserDto` object, creates a new user entity with the
-   * provided data, and saves it to the database, returning a `CreateUserResponseDto`.
-   *
-   * @param RegisterUserDto registerUserDto The `registerUserDto` parameter in the `registerUser`
-   * function contains the following properties:
-   *
-   * @return The `registerUser` function is returning a Promise that resolves to a
-   * `CreateUserResponseDto` object. This object likely contains information about the user that was
-   * created, such as their ID or other relevant details.
-   */
   async registerUser(
     registerUserDto: RegisterUserDto,
   ): Promise<CreateUserResponseDto> {
@@ -80,18 +71,6 @@ export class UserService {
     }
   }
 
-  /**
-   * The function creates a new user by setting the password, merging user data, creating a user
-   * object, and saving it to the repository.
-   *
-   * @param CreateUserDto createUserDto The `createUserDto` parameter in the `createUser` function
-   * likely represents a data transfer object (DTO) containing information needed to create a new user.
-   * It may include properties such as `username`, `email`, `password`, `firstName`, `lastName`, etc.
-   * This object is used to
-   *
-   * @return The `createUser` function returns a Promise that resolves to a `CreateUserResponseDto`
-   * object. This object represents the user that was created and saved in the database.
-   */
   async createUser(
     createUserDto: CreateUserDto,
   ): Promise<CreateUserResponseDto> {
@@ -105,21 +84,7 @@ export class UserService {
       throw new BadRequestException(error.message);
     }
   }
-  /**
-   * This TypeScript function retrieves a list of users based on pagination query parameters, including
-   * search criteria, and returns a response with user data and counts.
-   *
-   * @param PaginationQueryParams queryParams The `getUserList` function you provided is an
-   * asynchronous function that retrieves a list of users based on the pagination query parameters
-   * passed to it. The function performs a database query to fetch users with optional search criteria
-   * and pagination settings.
-   *
-   * @return The function `getUserList` returns a Promise that resolves to a `UserListResponseDto`
-   * object. This object contains the following properties:
-   * - `totalCount`: Total count of users in the database.
-   * - `filterCount`: Count of users after applying the pagination filters.
-   * - `userList`: An array of user objects that match the pagination criteria.
-   */
+
   async getUserList(
     queryParams: PaginationQueryParams,
   ): Promise<UserListResponseDto> {
@@ -170,21 +135,6 @@ export class UserService {
     }
   }
 
-  /**
-   * This TypeScript function asynchronously finds a user by their ID, fetching related information and
-   * handling exceptions appropriately.
-   *
-   * @param string id The `findOne` function you provided is an asynchronous function that retrieves
-   * user information based on the provided `id`. The function uses the `userRepository` to find a user
-   * with the specified `id` and includes related entities such as identification, address, contact,
-   * social profiles, and meta data.
-   *
-   * @return The `findOne` method is returning the user information for the user with the specified
-   * `id`. If the user is found, the method returns the user information object. If the user is not
-   * found, a `NotFoundException` is thrown with the message 'User not found!'. If any other error
-   * occurs during the process, a `BadRequestException` is thrown with the error message and status
-   * code.
-   */
   async findOne(id: string) {
     try {
       const userInfo = await this.userRepository.findOne({
@@ -202,27 +152,50 @@ export class UserService {
       if (!userInfo) {
         throw new NotFoundException('User not found!');
       }
+      // Fetch organization if user has organization assigned.
+      if (userInfo.organization_id && userInfo.organization_id !== NIL_UUID) {
+        const organizationInfo = await this.organizationService.findOne(
+          userInfo.organization_id,
+        );
+        userInfo.organization = organizationInfo;
+      }
+
+      // Fetch role and permissions if user has a role assigned
+      if (userInfo.role_id && userInfo.role_id !== NIL_UUID) {
+        const roleWithPermissions = await this.roleRepository
+          .createQueryBuilder('role')
+          .leftJoinAndSelect('role.permissions', 'permissions')
+          .select([
+            'role.id',
+            'role.name',
+            'role.is_enabled',
+            'permissions.id',
+            'permissions.name',
+            'permissions.is_enabled',
+          ])
+          .where('role.id = :roleId AND role.is_enabled = true', {
+            roleId: userInfo.role_id,
+          })
+          .getOne();
+
+        // Add role and permissions to the user object
+        if (roleWithPermissions) {
+          userInfo.role = {
+            id: roleWithPermissions.id,
+            name: roleWithPermissions.name,
+            is_enabled: roleWithPermissions.is_enabled,
+            permissions: roleWithPermissions.permissions || [],
+          };
+        }
+      }
+
       return userInfo;
     } catch (error) {
       loggernaut.error(error.message);
       throw new BadRequestException(error.message, error.statusCode);
     }
   }
-  /**
-   * The function updates a user in a database, ensuring that certain fields cannot be modified and
-   * handling exceptions appropriately.
-   *
-   * @param string id The `id` parameter in the `update` function is a string that represents the
-   * unique identifier of the user you want to update. This identifier is used to find the user in the
-   * database so that the update operation can be performed on the correct user record.
-   * @param UpdateUserDto updateUserDto The `updateUserDto` parameter is an object that contains the
-   * data to update for a user. In the provided code snippet, it is checked for the presence of certain
-   * properties (`password` and `organization_id`) to ensure that these properties are not allowed to
-   * be updated. If either of these properties
-   *
-   * @return The `update` method is returning a Promise that resolves to a `User` object after updating
-   * the user data in the database.
-   */
+
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
     try {
       if (
@@ -248,13 +221,6 @@ export class UserService {
     }
   }
 
-  /**
-   * The function `delete` asynchronously soft deletes a user by updating metadata and saving the changes
-   * to the database.
-   *
-   * @param string id The `id` parameter in the `delete` method is a string that represents the unique
-   * identifier of the user that needs to be deleted.
-   */
   async delete(id: string): Promise<User> {
     try {
       const user = await this.userRepository.findOne({
@@ -322,6 +288,14 @@ export class UserService {
           'User with the email/username does not exist',
         );
       }
+      // Fetch organization if user has organization assigned.
+      if (userInfo.organization_id && userInfo.organization_id !== NIL_UUID) {
+        const organizationInfo = await this.organizationService.findOne(
+          userInfo.organization_id,
+        );
+        userInfo.organization = organizationInfo;
+      }
+
       if (userInfo.role_id && userInfo.role_id !== NIL_UUID) {
         const roleWithPermissions = await this.roleRepository
           .createQueryBuilder('role')
@@ -338,7 +312,6 @@ export class UserService {
             roleId: userInfo.role_id,
           })
           .getOne();
-
         // Add role and permissions to the user object
         if (roleWithPermissions) {
           userInfo.role = {
@@ -349,13 +322,6 @@ export class UserService {
           };
         }
       }
-      console.log(
-        '***********************************************************************',
-      );
-      loggernaut.debug(JSON.stringify(userInfo));
-      console.log(
-        '***********************************************************************',
-      );
       return userInfo;
     } catch (error) {
       loggernaut.error(error.message);
