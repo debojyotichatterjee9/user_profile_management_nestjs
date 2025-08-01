@@ -20,6 +20,7 @@ import { UserService } from './user.service';
 import { UpdateUserResponseDto } from './dto/response.dtos/user.update.response.dto';
 import { DeleteUserResponseDto } from './dto/response.dtos/user.delete.response.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { UserDetailsResponsetDto } from './dto/response.dtos/user.details.response.dto';
 
 @Controller('user')
 export class UserController {
@@ -45,17 +46,21 @@ export class UserController {
     return this.userService.getUserList(queryParams);
   }
 
+  @UseGuards(AuthGuard)
+  @Serialize(UserDetailsResponsetDto)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.userService.findOne(id);
   }
 
+  @UseGuards(AuthGuard)
   @Serialize(UpdateUserResponseDto)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(id, updateUserDto);
   }
 
+  @UseGuards(AuthGuard)
   @Serialize(DeleteUserResponseDto)
   @Delete(':id')
   remove(@Param('id') id: string) {

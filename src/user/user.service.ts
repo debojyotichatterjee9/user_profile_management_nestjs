@@ -18,6 +18,7 @@ import { ConfigService } from '@nestjs/config';
 import { NIL as NIL_UUID, validate as uuidValidate } from 'uuid';
 import { Role } from '../admin/entities/role.entity';
 import { OrganizationService } from '../organization/organization.service';
+import { UserDetailsResponsetDto } from './dto/response.dtos/user.details.response.dto';
 
 @Injectable()
 export class UserService {
@@ -135,7 +136,7 @@ export class UserService {
     }
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<UserDetailsResponsetDto> {
     try {
       const userInfo = await this.userRepository.findOne({
         relations: {
@@ -188,7 +189,8 @@ export class UserService {
           };
         }
       }
-
+      console.log('>> ################################################## <<');
+      console.log(userInfo)
       return userInfo;
     } catch (error) {
       loggernaut.error(error.message);
