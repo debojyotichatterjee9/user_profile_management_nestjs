@@ -138,7 +138,7 @@ export class UserService {
 
   async findOne(id: string): Promise<UserDetailsResponsetDto> {
     try {
-      const userInfo = await this.userRepository.findOne({
+      const userInfo: any = await this.userRepository.findOne({ //TODO: Fix this any type
         relations: {
           identification: true,
           address: true,
@@ -189,8 +189,6 @@ export class UserService {
           };
         }
       }
-      console.log('>> ################################################## <<');
-      console.log(userInfo)
       return userInfo;
     } catch (error) {
       loggernaut.error(error.message);
