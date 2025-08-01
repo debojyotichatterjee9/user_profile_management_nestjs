@@ -10,5 +10,6 @@ import { PasetoProvider } from 'src/utilProviders/paseto.util.provider';
   imports: [TypeOrmModule.forFeature([Authentication]), UserModule],
   controllers: [AuthenticationController],
   providers: [AuthenticationService, PasetoProvider],
+  exports: [AuthenticationService, TypeOrmModule, PasetoProvider],
 })
 export class AuthenticationModule {}

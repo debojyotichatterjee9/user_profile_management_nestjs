@@ -6,7 +6,10 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Permission } from '../entities/permission.entity';
-import { CreatePermissionDto } from '../dto/request.dtos/create.permission.dto';
+import {
+  CreatePermissionBulkDto,
+  CreatePermissionDto,
+} from '../dto/request.dtos/create.permission.dto';
 import { PaginationQueryParams } from '../dto/request.dtos/generic.pagination.list.dto';
 import { PermissionListResponseDto } from '../dto/response.dtos/permission.list.response.dto';
 import loggernaut from 'loggernaut';
@@ -23,6 +26,26 @@ export class PermissionsService {
     try {
       const permission: Permission = this.permissionsRepository.create(payload);
       return await this.permissionsRepository.save(permission);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async bulkCreate(
+    payload: CreatePermissionBulkDto,
+  ): Promise<{ data: Permission[] }> {
+    try {
+      const permissionsList: Partial<Permission>[] = payload.permissions;
+      const createdPermissions: Permission[] = [];
+
+      for (const perm of permissionsList) {
+        const permission: Permission = this.permissionsRepository.create(perm);
+        const savedPermission: Permission =
+          await this.permissionsRepository.save(permission);
+        createdPermissions.push(savedPermission);
+      }
+
+      return { data: createdPermissions };
     } catch (error) {
       throw new BadRequestException(error.message);
     }

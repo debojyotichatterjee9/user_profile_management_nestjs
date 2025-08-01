@@ -10,9 +10,15 @@ import {
 } from '@nestjs/common';
 import { PermissionsService } from '../services/admin.permission.service';
 import { Permission } from '../entities/permission.entity';
-import { CreatePermissionDto } from '../dto/request.dtos/create.permission.dto';
+import {
+  CreatePermissionBulkDto,
+  CreatePermissionDto,
+} from '../dto/request.dtos/create.permission.dto';
 import { Serialize } from '../../interceptors/serialize.interceptor';
-import { CreateGenericResponseDto } from '../dto/response.dtos/create.generic.response.dto';
+import {
+  CreateGenericBulkResponseDto,
+  CreateGenericResponseDto,
+} from '../dto/response.dtos/create.generic.response.dto';
 import { PermissionListResponseDto } from '../dto/response.dtos/permission.list.response.dto';
 import { PaginationQueryParams } from '../dto/request.dtos/generic.pagination.list.dto';
 import { GenericCreateUpdateDeleteResponseDto } from '../dto/response.dtos/generic.create.update.delete.response.dto';
@@ -26,6 +32,21 @@ export class PermissionsController {
   @Post('create')
   create(@Body() payload: CreatePermissionDto): Promise<Permission> {
     return this.permissionsService.create(payload);
+  }
+
+  @Serialize(CreateGenericBulkResponseDto)
+  @Post('bulk/create')
+  async bulkCreate(
+    @Body() payload: CreatePermissionBulkDto,
+  ): Promise<CreateGenericBulkResponseDto<Permission>> {
+    const result = await this.permissionsService.bulkCreate(payload);
+    return new CreateGenericBulkResponseDto({
+      data: result.data.map((permission) => ({
+        id: permission.id,
+        name: permission.name,
+        // Add other fields you want to expose
+      })),
+    });
   }
 
   @Serialize(PermissionListResponseDto)

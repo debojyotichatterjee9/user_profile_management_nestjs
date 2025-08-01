@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { Permission } from './permission.entity';
 
-@Entity()
+@Entity({ name: 'role' })
 export class Role {
   @PrimaryGeneratedColumn('uuid')
   id: string;

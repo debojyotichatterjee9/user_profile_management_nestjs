@@ -8,7 +8,7 @@ import {
   NotAcceptableException,
   Post,
   Session,
-  UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthenticationService } from './authentication.service';
 import { LoginDto } from './dto/request.dtos/login.dto';
@@ -17,11 +17,14 @@ import { LoginResponseDto } from './dto/response.dtos/authenticate.login.respons
 import { AuthenticateResponseDto } from './dto/response.dtos/authenticate.response.dto';
 import { RefreshLoginResponseDto } from './dto/response.dtos/authenticate.refresh.response.dto';
 import { LogoutResponseDto } from './dto/response.dtos/authenticate.logout.response.dto';
+import { AuthGuard } from 'src/guards/auth.guard';
+import { Public } from '../decorators/public.decorator';
 
 @Controller('authenticate')
 export class AuthenticationController {
   constructor(private readonly authenticationService: AuthenticationService) {}
 
+  @Public()
   @Serialize(LoginResponseDto)
   @Post('login')
   login(
@@ -52,6 +55,7 @@ export class AuthenticationController {
     );
   }
 
+  @UseGuards(AuthGuard)
   @Serialize(AuthenticateResponseDto)
   @Get()
   authenticate(@Headers() headers: any) {

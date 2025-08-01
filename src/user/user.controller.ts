@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { CreateUserDto } from './dto/request.dtos/create.user.dto';
@@ -18,6 +19,7 @@ import { UserListResponseDto } from './dto/response.dtos/user.list.response.dto'
 import { UserService } from './user.service';
 import { UpdateUserResponseDto } from './dto/response.dtos/user.update.response.dto';
 import { DeleteUserResponseDto } from './dto/response.dtos/user.delete.response.dto';
+import { AuthGuard } from 'src/guards/auth.guard';
 
 @Controller('user')
 export class UserController {
@@ -35,6 +37,7 @@ export class UserController {
     return this.userService.createUser(createUserDto);
   }
 
+  @UseGuards(AuthGuard)
   @Serialize(UserListResponseDto)
   @Get('list')
   userList(@Query() queryParams: PaginationQueryParams) {
