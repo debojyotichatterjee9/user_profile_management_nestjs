@@ -228,7 +228,7 @@ export class UserService {
         relations: { meta_data: true },
       });
 
-      if (!user) {
+      if (!user || user.meta_data.is_deleted) {
         throw new NotFoundException('User not found!');
       }
 

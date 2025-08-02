@@ -131,7 +131,7 @@ export class OrganizationService {
         where: { id },
       });
 
-      if (!organization) {
+      if (!organization || organization.is_deleted) {
         throw new NotFoundException('Organization not found!');
       }
 
