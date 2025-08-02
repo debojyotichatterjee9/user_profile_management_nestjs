@@ -58,6 +58,8 @@ export class AuthenticationService {
     headers: any,
     session: any,
   ) {
+    console.log('>> $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ <<');
+    console.log("Coming here")
     try {
       const refreshTokenInfo = await this.authRepository.findOneOrFail({
         where: {
@@ -81,7 +83,7 @@ export class AuthenticationService {
       const userInfo = await this.userService.findUserByIdentity(userIdentity);
       if (!userInfo) {
         throw new NotFoundException(
-          'User with the for this token does not exist',
+          'User associated with this token does not exist',
         );
       }
       // Update the expired flag for the refresh token and save.
@@ -93,7 +95,7 @@ export class AuthenticationService {
         await this.authRepository.save(updatedRefreshToken);
       if (updatedRefreshTokenInfo) {
         const [userAgent] = [headers['user-agent']];
-        const tokenInfo = this.generateUserAuthTokenPair(
+        const tokenInfo = await this.generateUserAuthTokenPair(
           userInfo,
           userAgent,
           ip,
@@ -102,6 +104,7 @@ export class AuthenticationService {
       }
       throw new BadRequestException('This action cannot be performed.');
     } catch (error) {
+      console.log(error);
       loggernaut.error(error.message);
       throw new BadRequestException(error.message);
     }

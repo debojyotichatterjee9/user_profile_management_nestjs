@@ -36,9 +36,10 @@ export class AuthenticationController {
     return this.authenticationService.login(ip, headers, payload, session);
   }
 
+  @Public()
   @Serialize(RefreshLoginResponseDto)
   @Get('refresh')
-  getRefresheToken(
+  getRefreshToken(
     @Ip() ip: string,
     @Headers() headers: any,
     @Session() session: any,
