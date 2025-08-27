@@ -21,11 +21,13 @@ import { UpdateUserResponseDto } from './dto/response.dtos/user.update.response.
 import { DeleteUserResponseDto } from './dto/response.dtos/user.delete.response.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { UserDetailsResponsetDto } from './dto/response.dtos/user.details.response.dto';
+import { Public } from 'src/decorators/public.decorator';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Public()
   @Serialize(CreateUserResponseDto)
   @Post('register')
   register(@Body() registerUserDto: RegisterUserDto) {

@@ -1,8 +1,8 @@
 {
-  "docwriter.style": "reST",
+  "docwriter.style": "Doxygen",
   "docwriter.progress.trackFunctions": true,
   "docwriter.progress.trackMethods": false,
-  "docwriter.hotkey.mac": "⌘ + .",
+  "docwriter.hotkey.mac": "⌥ + .",
   "conventionalCommits.scopes": [
     "USRPRFNST-10",
     "86cxr5bu6",

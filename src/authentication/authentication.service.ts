@@ -58,8 +58,6 @@ export class AuthenticationService {
     headers: any,
     session: any,
   ) {
-    console.log('>> $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ <<');
-    console.log("Coming here")
     try {
       const refreshTokenInfo = await this.authRepository.findOneOrFail({
         where: {
@@ -112,30 +110,31 @@ export class AuthenticationService {
 
   async authenticate(token: string) {
     try {
+      const [type, authToken] = token.split(' ') ?? [];
       const tokenInfo = await this.authRepository.findOne({
         where: {
-          token: token,
+          token: authToken,
         },
       });
       if (!tokenInfo) {
         // If token exists in any case the force expire the token
-        await this.logout(token);
+        await this.logout(authToken);
         throw new UnauthorizedException('This is a invalid token.');
       }
       if (tokenInfo.token_expired || tokenInfo.refresh_token_expired) {
-        await this.logout(token);
+        await this.logout(authToken);
         throw new UnauthorizedException(
           'The token provided is already expired.',
         );
       }
       const decodedTokenInfo: any =
-        await this.pasetoProvider.decodeEncryptedToken(token, tokenInfo.key);
+        await this.pasetoProvider.decodeEncryptedToken(authToken, tokenInfo.key);
       const userInfo = await this.userService.findUserByIdentity(
         decodedTokenInfo.user_id,
       );
       if (!userInfo) {
         // If token exists in any case the force expire the token
-        await this.logout(token);
+        await this.logout(authToken);
         throw new UnauthorizedException(
           'No user has been assigned this token.',
         );
