@@ -47,6 +47,10 @@ export class CreateUserDto {
   @IsUUID()
   organization_id?: string;
 
+  @IsOptional()
+  @IsUUID()
+  role_id?: string;
+
   @IsNotEmpty()
   @MinLength(6)
   password: string;

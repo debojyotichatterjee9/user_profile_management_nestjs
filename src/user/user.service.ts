@@ -76,6 +76,19 @@ export class UserService {
     createUserDto: CreateUserDto,
   ): Promise<CreateUserResponseDto> {
     try {
+      // Validate organization_id if provided
+      if (createUserDto.organization_id && createUserDto.organization_id !== NIL_UUID) {
+        await this.organizationService.findOne(createUserDto.organization_id);
+      }
+
+      // Validate role_id if provided
+      if (createUserDto.role_id && createUserDto.role_id !== NIL_UUID) {
+        const role = await this.roleRepository.findOne({ where: { id: createUserDto.role_id } });
+        if (!role) {
+          throw new BadRequestException('Invalid role ID provided');
+        }
+      }
+
       let userObj = new User();
       userObj.setPassword(createUserDto.password);
       userObj = { ...userObj, ...createUserDto };
