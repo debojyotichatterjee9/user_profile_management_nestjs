@@ -4,7 +4,6 @@ export class CreateRoleDto {
   @IsString()
   name: string;
 
-  @IsOptional()
   @IsArray()
   permission_ids?: string[];
 
