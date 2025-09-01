@@ -34,6 +34,6 @@ import { PasetoProvider } from '../utilProviders/paseto.util.provider';
     RolesService,
     PermissionsService,
   ],
-  exports: [RandomDataProvider],
+  exports: [RandomDataProvider, RolesService],
 })
 export class AdminModule {}

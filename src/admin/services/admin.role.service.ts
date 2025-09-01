@@ -108,11 +108,17 @@ export class RolesService {
   async findOne(id: string): Promise<Role> {
     // TODO: add permission information in the details API response
     try {
-      const roleInfo: Role | null = await this.rolesRepository.findOne({
-        where: {
-          id,
-        },
-      });
+      const roleInfo: Role | null = await this.rolesRepository
+        .createQueryBuilder('role')
+        .leftJoinAndSelect('role.permissions', 'permission', 'permission.is_enabled = :enabled', { enabled: true })
+        .select([
+          'role',
+          'permission.id',
+          'permission.name',
+          'permission.is_enabled'
+        ])
+        .where('role.id = :id', { id })
+        .getOne();
       if (!roleInfo) {
         throw new NotFoundException('Role not found!');
       }

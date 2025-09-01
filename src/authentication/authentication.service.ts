@@ -12,6 +12,7 @@ import { Repository } from 'typeorm';
 import { UserService } from 'src/user/user.service';
 import { PasetoProvider } from 'src/utilProviders/paseto.util.provider';
 import { ConfigService } from '@nestjs/config';
+import { RolesService } from 'src/admin/services/admin.role.service';
 
 const { V3 } = require('paseto');
 
@@ -22,6 +23,7 @@ export class AuthenticationService {
     private readonly authRepository: Repository<Authentication>,
     private readonly configService: ConfigService,
     private readonly userService: UserService,
+    private readonly roleService: RolesService,
     private readonly pasetoProvider: PasetoProvider,
   ) {}
   async login(ip: string, headers: any, payload: LoginDto, session: any) {

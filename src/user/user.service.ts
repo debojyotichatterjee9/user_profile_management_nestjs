@@ -165,13 +165,14 @@ export class UserService {
       if (userInfo.role_id && userInfo.role_id !== NIL_UUID) {
         const roleWithPermissions = await this.roleRepository
           .createQueryBuilder('role')
-          .leftJoinAndSelect('role.permissions', 'permissions')
+          .leftJoinAndSelect('role.permissions', 'permissions', 'permissions.is_enabled = :permEnabled', { permEnabled: true })
           .select([
             'role.id',
             'role.name',
             'role.is_enabled',
             'permissions.id',
             'permissions.name',
+            'permissions.description',
             'permissions.is_enabled',
           ])
           .where('role.id = :roleId AND role.is_enabled = true', {
@@ -299,7 +300,7 @@ export class UserService {
       if (userInfo.role_id && userInfo.role_id !== NIL_UUID) {
         const roleWithPermissions = await this.roleRepository
           .createQueryBuilder('role')
-          .leftJoinAndSelect('role.permissions', 'permissions')
+          .leftJoinAndSelect('role.permissions', 'permissions', 'permissions.is_enabled = :permEnabled', { permEnabled: true })
           .select([
             'role.id',
             'role.name',

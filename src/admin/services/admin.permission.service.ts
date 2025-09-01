@@ -140,6 +140,29 @@ export class PermissionsService {
     }
   }
 
+  // TODO: Complete this implementation
+async findByIds(ids: string[]): Promise<Permission[]> {
+  
+}
+
+
+  /**
+   * The function updates a permission record in a database by merging existing data with new data and
+   * saving the updated record.
+   * 
+   * @param id The `id` parameter is a string that represents the unique identifier of the permission
+   * that needs to be updated.
+   * @param payload The `payload` parameter in the `update` function represents the data that contains
+   * the updates to be applied to the existing permission. It is of type `UpdatePermissionDto`, which
+   * likely contains properties with new values for the permission entity. When the function is called,
+   * it retrieves the existing permission based on
+   * 
+   * @return The `update` function is returning a Promise that resolves to a `Permission` object after
+   * updating the permission with the provided payload data and saving it back to the database. If the
+   * permission with the specified ID is not found, a `NotFoundException` is thrown with the message
+   * 'Permission not found!'. If any other error occurs during the update process, a
+   * `BadRequestException` is thrown with the error
+   */
   async update(id: string, payload: UpdatePermissionDto): Promise<Permission> {
     try {
       const permission: Permission | null =
