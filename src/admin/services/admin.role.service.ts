@@ -33,7 +33,6 @@ export class RolesService {
       // Extract permission IDs from payload
       const permissionIds = payload.permission_ids || [];
       let permissions: Permission[] = [];
-      console.log(payload);
       if (permissionIds.length > 0) {
         permissions = await this.permissionRepository.findBy({
           id: In(permissionIds),
@@ -48,7 +47,6 @@ export class RolesService {
           );
         }
       }
-      console.log(permissions);
       const role: Role = this.rolesRepository.create({
         ...payload,
         permissions,
