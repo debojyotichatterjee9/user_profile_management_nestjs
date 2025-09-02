@@ -59,10 +59,10 @@ export class RolesService {
 
   async findAll(queryParams: PaginationQueryParams): Promise<Role[]> {
     try {
-      const {
+      let {
         search,
-        page,
-        limit,
+        page = 1,
+        limit = null,
       }: { search?: string; page?: any; limit?: any } = queryParams;
       const query: SelectQueryBuilder<Role> =
         this.rolesRepository.createQueryBuilder('roles');
@@ -77,6 +77,8 @@ export class RolesService {
         });
       }
       const totalCount: number = await this.rolesRepository.count();
+
+      limit ??= totalCount;
 
       if (page > totalCount && limit > totalCount) {
         throw new NotFoundException(

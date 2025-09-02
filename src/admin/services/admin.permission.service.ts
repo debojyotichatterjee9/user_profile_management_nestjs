@@ -73,10 +73,10 @@ export class PermissionsService {
     queryParams: PaginationQueryParams,
   ): Promise<PermissionListResponseDto> {
     try {
-      const {
+      let {
         search,
-        page,
-        limit,
+        page = 1,
+        limit = null,
       }: { search?: string; page?: any; limit?: any } = queryParams;
       const query =
         this.permissionsRepository.createQueryBuilder('permissions');
@@ -91,6 +91,8 @@ export class PermissionsService {
         });
       }
       const totalCount: number = await this.permissionsRepository.count();
+
+      limit ??= totalCount;
 
       if (page > totalCount && limit > totalCount) {
         throw new NotFoundException(

@@ -103,10 +103,10 @@ export class UserService {
     queryParams: PaginationQueryParams,
   ): Promise<UserListResponseDto> {
     try {
-      const {
+      let {
         search,
-        page,
-        limit,
+        page = 1,
+        limit = null,
       }: { search?: string; page?: any; limit?: any } = queryParams;
       const query = this.userRepository
         .createQueryBuilder('user')
@@ -125,6 +125,8 @@ export class UserService {
         query.where('meta_data.is_deleted = :deleted', { deleted: false });
       }
       const totalCount = await this.userRepository.count();
+
+      limit ??= totalCount;
 
       if (page > totalCount && limit > totalCount) {
         throw new NotFoundException(
