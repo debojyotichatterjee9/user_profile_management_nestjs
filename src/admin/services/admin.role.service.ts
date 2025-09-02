@@ -11,6 +11,7 @@ import { Permission } from '../entities/permission.entity';
 import { PaginationQueryParams } from '../../user/dto/request.dtos/fetch.user.list.dto';
 import loggernaut from 'loggernaut';
 import { UpdateRoleDto } from '../dto/request.dtos/update.role.dto';
+import { OrganizationService } from '../../organization/organization.service';
 
 @Injectable()
 export class RolesService {
@@ -19,6 +20,7 @@ export class RolesService {
     private rolesRepository: Repository<Role>,
     @InjectRepository(Permission)
     private permissionRepository: Repository<Permission>,
+    private readonly organizationService: OrganizationService,
   ) {}
 
   async create(payload: CreateRoleDto): Promise<Role> {
@@ -29,6 +31,9 @@ export class RolesService {
        * if they exist, add them to the role
        * if they don't exist, throw an error
        */
+
+      // Check if the organization exists
+      await this.organizationService.findOne(payload.organization_id);
 
       // Extract permission IDs from payload
       const permissionIds = payload.permission_ids || [];
@@ -138,6 +143,27 @@ export class RolesService {
 
       if (!role) {
         throw new NotFoundException('Role not found!');
+      }
+
+      // Check if the organization exists
+      await this.organizationService.findOne(payload.organization_id);
+
+      // Extract permission IDs from payload
+      const permissionIds = payload.permission_ids || [];
+      let permissions: Permission[] = [];
+      if (permissionIds.length > 0) {
+        permissions = await this.permissionRepository.findBy({
+          id: In(permissionIds),
+        });
+        if (permissions.length !== permissionIds.length) {
+          const foundPermissionIds = permissions.map((p) => p.id);
+          const invalidIds = permissionIds.filter(
+            (id) => !foundPermissionIds.includes(id),
+          );
+          throw new BadRequestException(
+            `Invalid permission IDs: ${invalidIds.join(', ')}`,
+          );
+        }
       }
 
       // Merge the existing role with the new data

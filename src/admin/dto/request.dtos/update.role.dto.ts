@@ -4,6 +4,9 @@ export class UpdateRoleDto {
   @IsString()
   name: string;
 
+  @IsString()
+  organization_id: string;
+
   @IsOptional()
   @IsArray()
   permission_ids?: string[];

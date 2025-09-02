@@ -7,11 +7,12 @@ import { UserModule } from 'src/user/user.module';
 import { PasetoProvider } from 'src/utilProviders/paseto.util.provider';
 import { AdminModule } from 'src/admin/admin.module';
 import { RolesService } from 'src/admin/services/admin.role.service';
+import { OrganizationService } from '../organization/organization.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Authentication]), UserModule],
   controllers: [AuthenticationController],
-  providers: [AuthenticationService, RolesService, PasetoProvider],
+  providers: [AuthenticationService, OrganizationService,RolesService, PasetoProvider],
   exports: [AuthenticationService, TypeOrmModule, PasetoProvider],
 })
 export class AuthenticationModule {}

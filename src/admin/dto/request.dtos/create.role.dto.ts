@@ -4,6 +4,9 @@ export class CreateRoleDto {
   @IsString()
   name: string;
 
+  @IsString()
+  organization_id: string;
+
   @IsArray()
   permission_ids?: string[];
 

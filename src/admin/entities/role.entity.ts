@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { NIL as NIL_UUID } from 'uuid';
 import { Permission } from './permission.entity';
 
 @Entity({ name: 'role' })
@@ -16,6 +17,9 @@ export class Role {
 
   @Column({ unique: true, nullable: false })
   name: string;
+
+  @Column({ type: 'uuid', default: NIL_UUID })
+  organization_id: string;
 
   @ManyToMany(
     (): typeof Permission => Permission,

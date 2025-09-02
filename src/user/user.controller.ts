@@ -30,14 +30,14 @@ export class UserController {
   @Public()
   @Serialize(CreateUserResponseDto)
   @Post('register')
-  register(@Body() registerUserDto: RegisterUserDto) {
-    return this.userService.registerUser(registerUserDto);
+  register(@Body() payload: RegisterUserDto) {
+    return this.userService.registerUser(payload);
   }
 
   @Serialize(CreateUserResponseDto)
   @Post('create')
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.createUser(createUserDto);
+  create(@Body() payload: CreateUserDto) {
+    return this.userService.createUser(payload);
   }
 
   @UseGuards(AuthGuard)
@@ -58,8 +58,8 @@ export class UserController {
   @UseGuards(AuthGuard)
   @Serialize(UpdateUserResponseDto)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(id, updateUserDto);
+  update(@Param('id') id: string, @Body() payload: UpdateUserDto) {
+    return this.userService.update(id, payload);
   }
 
   @UseGuards(AuthGuard)

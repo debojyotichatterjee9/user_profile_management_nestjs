@@ -31,7 +31,7 @@ export class UserService {
     private readonly configService: ConfigService,
   ) {}
   async registerUser(
-    registerUserDto: RegisterUserDto,
+    payload: RegisterUserDto,
   ): Promise<CreateUserResponseDto> {
     try {
       const {
@@ -42,7 +42,7 @@ export class UserService {
         name_suffix,
         email,
         password,
-      } = registerUserDto;
+      } = payload;
       const existingUserInfo = await this.userRepository.findOne({
         where: {
           email,
@@ -73,25 +73,28 @@ export class UserService {
   }
 
   async createUser(
-    createUserDto: CreateUserDto,
+    payload: CreateUserDto,
   ): Promise<CreateUserResponseDto> {
     try {
       // Validate organization_id if provided
-      if (createUserDto.organization_id && createUserDto.organization_id !== NIL_UUID) {
-        await this.organizationService.findOne(createUserDto.organization_id);
+      if (payload.organization_id && payload.organization_id !== NIL_UUID) {
+        await this.organizationService.findOne(payload.organization_id);
       }
 
       // Validate role_id if provided
-      if (createUserDto.role_id && createUserDto.role_id !== NIL_UUID) {
-        const role = await this.roleRepository.findOne({ where: { id: createUserDto.role_id } });
+      if (payload.role_id && payload.role_id !== NIL_UUID) {
+        const role = await this.roleRepository.findOne({ where: { id: payload.role_id } });
         if (!role) {
           throw new BadRequestException('Invalid role ID provided');
+        }
+        if(role.organization_id !== payload.organization_id) {
+          throw new BadRequestException("The provided role is not associated with the provided organization.")
         }
       }
 
       let userObj = new User();
-      userObj.setPassword(createUserDto.password);
-      userObj = { ...userObj, ...createUserDto };
+      userObj.setPassword(payload.password);
+      userObj = { ...userObj, ...payload };
       const user = this.userRepository.create(userObj);
       return await this.userRepository.save(user);
     } catch (error) {
@@ -212,11 +215,11 @@ export class UserService {
     }
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+  async update(id: string, payload: UpdateUserDto): Promise<User> {
     try {
       if (
-        updateUserDto.hasOwnProperty('password') ||
-        updateUserDto.hasOwnProperty('organization_id')
+        payload.hasOwnProperty('password') ||
+        payload.hasOwnProperty('organization_id')
       ) {
         throw new BadRequestException('Invalid Payload!');
       }
@@ -226,8 +229,19 @@ export class UserService {
         throw new NotFoundException('User not found!');
       }
 
+      // Validate role_id if provided
+      if (payload.role_id && payload.role_id !== NIL_UUID) {
+        const role = await this.roleRepository.findOne({ where: { id: payload.role_id } });
+        if (!role) {
+          throw new BadRequestException('Invalid role ID provided');
+        }
+        if(role.organization_id !== user.organization_id) {
+          throw new BadRequestException("The provided role is not associated with the user organization.")
+        }
+      }
+
       // Merge the existing user with the new data
-      const updatedUser = this.userRepository.merge(user, updateUserDto);
+      const updatedUser = this.userRepository.merge(user, payload);
 
       // Save the updated user back to the database
       return await this.userRepository.save(updatedUser);
