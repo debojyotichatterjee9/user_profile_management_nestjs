@@ -37,6 +37,10 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
 
   @IsString()
   @IsEmail()
+  role_id?: string;
+
+  @IsString()
+  @IsEmail()
   email?: string;
 
   @IsString()

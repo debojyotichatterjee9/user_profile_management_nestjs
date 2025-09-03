@@ -18,6 +18,7 @@ import { ConfigService } from '@nestjs/config';
 import { NIL as NIL_UUID, validate as uuidValidate } from 'uuid';
 import { Role } from '../admin/entities/role.entity';
 import { OrganizationService } from '../organization/organization.service';
+import { UserDetailsResponsetDto } from './dto/response.dtos/user.details.response.dto';
 
 @Injectable()
 export class UserService {
@@ -30,7 +31,7 @@ export class UserService {
     private readonly configService: ConfigService,
   ) {}
   async registerUser(
-    registerUserDto: RegisterUserDto,
+    payload: RegisterUserDto,
   ): Promise<CreateUserResponseDto> {
     try {
       const {
@@ -41,7 +42,7 @@ export class UserService {
         name_suffix,
         email,
         password,
-      } = registerUserDto;
+      } = payload;
       const existingUserInfo = await this.userRepository.findOne({
         where: {
           email,
@@ -72,12 +73,28 @@ export class UserService {
   }
 
   async createUser(
-    createUserDto: CreateUserDto,
+    payload: CreateUserDto,
   ): Promise<CreateUserResponseDto> {
     try {
+      // Validate organization_id if provided
+      if (payload.organization_id && payload.organization_id !== NIL_UUID) {
+        await this.organizationService.findOne(payload.organization_id);
+      }
+
+      // Validate role_id if provided
+      if (payload.role_id && payload.role_id !== NIL_UUID) {
+        const role = await this.roleRepository.findOne({ where: { id: payload.role_id } });
+        if (!role) {
+          throw new BadRequestException('Invalid role ID provided');
+        }
+        if(role.organization_id !== payload.organization_id) {
+          throw new BadRequestException("The provided role is not associated with the provided organization.")
+        }
+      }
+
       let userObj = new User();
-      userObj.setPassword(createUserDto.password);
-      userObj = { ...userObj, ...createUserDto };
+      userObj.setPassword(payload.password);
+      userObj = { ...userObj, ...payload };
       const user = this.userRepository.create(userObj);
       return await this.userRepository.save(user);
     } catch (error) {
@@ -89,10 +106,10 @@ export class UserService {
     queryParams: PaginationQueryParams,
   ): Promise<UserListResponseDto> {
     try {
-      const {
+      let {
         search,
-        page,
-        limit,
+        page = 1,
+        limit = null,
       }: { search?: string; page?: any; limit?: any } = queryParams;
       const query = this.userRepository
         .createQueryBuilder('user')
@@ -111,6 +128,8 @@ export class UserService {
         query.where('meta_data.is_deleted = :deleted', { deleted: false });
       }
       const totalCount = await this.userRepository.count();
+
+      limit ??= totalCount;
 
       if (page > totalCount && limit > totalCount) {
         throw new NotFoundException(
@@ -135,9 +154,9 @@ export class UserService {
     }
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<UserDetailsResponsetDto> {
     try {
-      const userInfo = await this.userRepository.findOne({
+      const userInfo: any = await this.userRepository.findOne({ //TODO: Fix this any type
         relations: {
           identification: true,
           address: true,
@@ -164,13 +183,14 @@ export class UserService {
       if (userInfo.role_id && userInfo.role_id !== NIL_UUID) {
         const roleWithPermissions = await this.roleRepository
           .createQueryBuilder('role')
-          .leftJoinAndSelect('role.permissions', 'permissions')
+          .leftJoinAndSelect('role.permissions', 'permissions', 'permissions.is_enabled = :permEnabled', { permEnabled: true })
           .select([
             'role.id',
             'role.name',
             'role.is_enabled',
             'permissions.id',
             'permissions.name',
+            'permissions.description',
             'permissions.is_enabled',
           ])
           .where('role.id = :roleId AND role.is_enabled = true', {
@@ -188,7 +208,6 @@ export class UserService {
           };
         }
       }
-
       return userInfo;
     } catch (error) {
       loggernaut.error(error.message);
@@ -196,11 +215,11 @@ export class UserService {
     }
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+  async update(id: string, payload: UpdateUserDto): Promise<User> {
     try {
       if (
-        updateUserDto.hasOwnProperty('password') ||
-        updateUserDto.hasOwnProperty('organization_id')
+        payload.hasOwnProperty('password') ||
+        payload.hasOwnProperty('organization_id')
       ) {
         throw new BadRequestException('Invalid Payload!');
       }
@@ -210,8 +229,19 @@ export class UserService {
         throw new NotFoundException('User not found!');
       }
 
+      // Validate role_id if provided
+      if (payload.role_id && payload.role_id !== NIL_UUID) {
+        const role = await this.roleRepository.findOne({ where: { id: payload.role_id } });
+        if (!role) {
+          throw new BadRequestException('Invalid role ID provided');
+        }
+        if(role.organization_id !== user.organization_id) {
+          throw new BadRequestException("The provided role is not associated with the user organization.")
+        }
+      }
+
       // Merge the existing user with the new data
-      const updatedUser = this.userRepository.merge(user, updateUserDto);
+      const updatedUser = this.userRepository.merge(user, payload);
 
       // Save the updated user back to the database
       return await this.userRepository.save(updatedUser);
@@ -228,7 +258,7 @@ export class UserService {
         relations: { meta_data: true },
       });
 
-      if (!user) {
+      if (!user || user.meta_data.is_deleted) {
         throw new NotFoundException('User not found!');
       }
 
@@ -299,7 +329,7 @@ export class UserService {
       if (userInfo.role_id && userInfo.role_id !== NIL_UUID) {
         const roleWithPermissions = await this.roleRepository
           .createQueryBuilder('role')
-          .leftJoinAndSelect('role.permissions', 'permissions')
+          .leftJoinAndSelect('role.permissions', 'permissions', 'permissions.is_enabled = :permEnabled', { permEnabled: true })
           .select([
             'role.id',
             'role.name',

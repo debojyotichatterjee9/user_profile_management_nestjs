@@ -20,21 +20,24 @@ import { UserService } from './user.service';
 import { UpdateUserResponseDto } from './dto/response.dtos/user.update.response.dto';
 import { DeleteUserResponseDto } from './dto/response.dtos/user.delete.response.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { UserDetailsResponsetDto } from './dto/response.dtos/user.details.response.dto';
+import { Public } from 'src/decorators/public.decorator';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Public()
   @Serialize(CreateUserResponseDto)
   @Post('register')
-  register(@Body() registerUserDto: RegisterUserDto) {
-    return this.userService.registerUser(registerUserDto);
+  register(@Body() payload: RegisterUserDto) {
+    return this.userService.registerUser(payload);
   }
 
   @Serialize(CreateUserResponseDto)
   @Post('create')
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.createUser(createUserDto);
+  create(@Body() payload: CreateUserDto) {
+    return this.userService.createUser(payload);
   }
 
   @UseGuards(AuthGuard)
@@ -45,17 +48,21 @@ export class UserController {
     return this.userService.getUserList(queryParams);
   }
 
+  @UseGuards(AuthGuard)
+  @Serialize(UserDetailsResponsetDto)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.userService.findOne(id);
   }
 
+  @UseGuards(AuthGuard)
   @Serialize(UpdateUserResponseDto)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(id, updateUserDto);
+  update(@Param('id') id: string, @Body() payload: UpdateUserDto) {
+    return this.userService.update(id, payload);
   }
 
+  @UseGuards(AuthGuard)
   @Serialize(DeleteUserResponseDto)
   @Delete(':id')
   remove(@Param('id') id: string) {

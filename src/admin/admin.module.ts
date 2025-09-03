@@ -16,6 +16,7 @@ import { Role } from './entities/role.entity';
 import { Permission } from './entities/permission.entity';
 import { AuthenticationService } from '../authentication/authentication.service';
 import { PasetoProvider } from '../utilProviders/paseto.util.provider';
+import { OrganizationService } from '../organization/organization.service';
 
 @Module({
   imports: [
@@ -31,9 +32,10 @@ import { PasetoProvider } from '../utilProviders/paseto.util.provider';
     UserTasksService,
     OrganizationTasksService,
     RandomDataProvider,
+    OrganizationService,
     RolesService,
     PermissionsService,
   ],
-  exports: [RandomDataProvider],
+  exports: [RandomDataProvider, RolesService],
 })
 export class AdminModule {}

@@ -10,17 +10,22 @@ import { PasetoProvider } from 'src/utilProviders/paseto.util.provider';
 import { Role } from '../admin/entities/role.entity';
 import { OrganizationService } from '../organization/organization.service';
 import { Organization } from '../organization/entities/organization.entity';
+import { AdminModule } from 'src/admin/admin.module';
+import { RolesService } from 'src/admin/services/admin.role.service';
+import { Permission } from 'src/admin/entities/permission.entity';
 
 @Module({
   imports: [
     ConfigModule,
-    TypeOrmModule.forFeature([User, Organization, Role, Authentication]),
+    TypeOrmModule.forFeature([User, Organization, Role, Permission, Authentication]),
+    UserModule
   ],
   controllers: [UserController],
   providers: [
     UserService,
     OrganizationService,
     AuthenticationService,
+    RolesService,
     PasetoProvider,
   ],
   exports: [UserService, TypeOrmModule],

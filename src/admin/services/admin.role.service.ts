@@ -11,6 +11,7 @@ import { Permission } from '../entities/permission.entity';
 import { PaginationQueryParams } from '../../user/dto/request.dtos/fetch.user.list.dto';
 import loggernaut from 'loggernaut';
 import { UpdateRoleDto } from '../dto/request.dtos/update.role.dto';
+import { OrganizationService } from '../../organization/organization.service';
 
 @Injectable()
 export class RolesService {
@@ -19,6 +20,7 @@ export class RolesService {
     private rolesRepository: Repository<Role>,
     @InjectRepository(Permission)
     private permissionRepository: Repository<Permission>,
+    private readonly organizationService: OrganizationService,
   ) {}
 
   async create(payload: CreateRoleDto): Promise<Role> {
@@ -30,10 +32,12 @@ export class RolesService {
        * if they don't exist, throw an error
        */
 
+      // Check if the organization exists
+      await this.organizationService.findOne(payload.organization_id);
+
       // Extract permission IDs from payload
       const permissionIds = payload.permission_ids || [];
       let permissions: Permission[] = [];
-      console.log(payload);
       if (permissionIds.length > 0) {
         permissions = await this.permissionRepository.findBy({
           id: In(permissionIds),
@@ -48,7 +52,6 @@ export class RolesService {
           );
         }
       }
-      console.log(permissions);
       const role: Role = this.rolesRepository.create({
         ...payload,
         permissions,
@@ -61,10 +64,10 @@ export class RolesService {
 
   async findAll(queryParams: PaginationQueryParams): Promise<Role[]> {
     try {
-      const {
+      let {
         search,
-        page,
-        limit,
+        page = 1,
+        limit = null,
       }: { search?: string; page?: any; limit?: any } = queryParams;
       const query: SelectQueryBuilder<Role> =
         this.rolesRepository.createQueryBuilder('roles');
@@ -79,6 +82,8 @@ export class RolesService {
         });
       }
       const totalCount: number = await this.rolesRepository.count();
+
+      limit ??= totalCount;
 
       if (page > totalCount && limit > totalCount) {
         throw new NotFoundException(
@@ -108,11 +113,17 @@ export class RolesService {
   async findOne(id: string): Promise<Role> {
     // TODO: add permission information in the details API response
     try {
-      const roleInfo: Role | null = await this.rolesRepository.findOne({
-        where: {
-          id,
-        },
-      });
+      const roleInfo: Role | null = await this.rolesRepository
+        .createQueryBuilder('role')
+        .leftJoinAndSelect('role.permissions', 'permission', 'permission.is_enabled = :enabled', { enabled: true })
+        .select([
+          'role',
+          'permission.id',
+          'permission.name',
+          'permission.is_enabled'
+        ])
+        .where('role.id = :id', { id })
+        .getOne();
       if (!roleInfo) {
         throw new NotFoundException('Role not found!');
       }
@@ -132,6 +143,27 @@ export class RolesService {
 
       if (!role) {
         throw new NotFoundException('Role not found!');
+      }
+
+      // Check if the organization exists
+      await this.organizationService.findOne(payload.organization_id);
+
+      // Extract permission IDs from payload
+      const permissionIds = payload.permission_ids || [];
+      let permissions: Permission[] = [];
+      if (permissionIds.length > 0) {
+        permissions = await this.permissionRepository.findBy({
+          id: In(permissionIds),
+        });
+        if (permissions.length !== permissionIds.length) {
+          const foundPermissionIds = permissions.map((p) => p.id);
+          const invalidIds = permissionIds.filter(
+            (id) => !foundPermissionIds.includes(id),
+          );
+          throw new BadRequestException(
+            `Invalid permission IDs: ${invalidIds.join(', ')}`,
+          );
+        }
       }
 
       // Merge the existing role with the new data

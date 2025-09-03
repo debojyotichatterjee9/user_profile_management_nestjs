@@ -31,10 +31,10 @@ export class OrganizationService {
     queryParams: PaginationQueryParams,
   ): Promise<OrganizationListResponseDto> {
     try {
-      const {
+      let {
         search,
-        page,
-        limit,
+        page = 1,
+        limit = null,
       }: { search?: string; page?: any; limit?: any } = queryParams;
       const query = this.organizationRepository
         .createQueryBuilder('organization')
@@ -55,6 +55,8 @@ export class OrganizationService {
         });
       }
       const totalCount = await this.organizationRepository.count();
+
+      limit ??= totalCount;
 
       if (page > totalCount && limit > totalCount) {
         throw new NotFoundException(
@@ -131,7 +133,7 @@ export class OrganizationService {
         where: { id },
       });
 
-      if (!organization) {
+      if (!organization || organization.is_deleted) {
         throw new NotFoundException('Organization not found!');
       }
 

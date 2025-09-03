@@ -36,14 +36,15 @@ export class AuthenticationController {
     return this.authenticationService.login(ip, headers, payload, session);
   }
 
+  @Public() //TODO: Do we need to make this call public?
   @Serialize(RefreshLoginResponseDto)
   @Get('refresh')
-  getRefresheToken(
+  getRefreshToken(
     @Ip() ip: string,
     @Headers() headers: any,
     @Session() session: any,
   ) {
-    const refreshToken = headers.authentication;
+    const refreshToken = headers.authorization;
     if (!refreshToken) {
       throw new NotAcceptableException('This is not a valid call.');
     }
@@ -59,7 +60,7 @@ export class AuthenticationController {
   @Serialize(AuthenticateResponseDto)
   @Get()
   authenticate(@Headers() headers: any) {
-    const token = headers.authentication;
+    const token = headers.authorization;
     if (!token) {
       throw new NotAcceptableException('This is not a valid call.');
     }
@@ -69,7 +70,7 @@ export class AuthenticationController {
   @Serialize(LogoutResponseDto)
   @Delete('logout')
   logout(@Headers() headers: any) {
-    const token = headers.authentication;
+    const token = headers.authorization;
     if (!token) {
       throw new NotAcceptableException('This is not a valid call.');
     }

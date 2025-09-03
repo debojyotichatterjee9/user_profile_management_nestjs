@@ -12,6 +12,7 @@ import { Repository } from 'typeorm';
 import { UserService } from 'src/user/user.service';
 import { PasetoProvider } from 'src/utilProviders/paseto.util.provider';
 import { ConfigService } from '@nestjs/config';
+import { RolesService } from 'src/admin/services/admin.role.service';
 
 const { V3 } = require('paseto');
 
@@ -22,6 +23,7 @@ export class AuthenticationService {
     private readonly authRepository: Repository<Authentication>,
     private readonly configService: ConfigService,
     private readonly userService: UserService,
+    private readonly roleService: RolesService,
     private readonly pasetoProvider: PasetoProvider,
   ) {}
   async login(ip: string, headers: any, payload: LoginDto, session: any) {
@@ -81,7 +83,7 @@ export class AuthenticationService {
       const userInfo = await this.userService.findUserByIdentity(userIdentity);
       if (!userInfo) {
         throw new NotFoundException(
-          'User with the for this token does not exist',
+          'User associated with this token does not exist',
         );
       }
       // Update the expired flag for the refresh token and save.
@@ -93,7 +95,7 @@ export class AuthenticationService {
         await this.authRepository.save(updatedRefreshToken);
       if (updatedRefreshTokenInfo) {
         const [userAgent] = [headers['user-agent']];
-        const tokenInfo = this.generateUserAuthTokenPair(
+        const tokenInfo = await this.generateUserAuthTokenPair(
           userInfo,
           userAgent,
           ip,
@@ -102,6 +104,7 @@ export class AuthenticationService {
       }
       throw new BadRequestException('This action cannot be performed.');
     } catch (error) {
+      console.log(error);
       loggernaut.error(error.message);
       throw new BadRequestException(error.message);
     }
@@ -109,30 +112,31 @@ export class AuthenticationService {
 
   async authenticate(token: string) {
     try {
+      const [type, authToken] = token.split(' ') ?? [];
       const tokenInfo = await this.authRepository.findOne({
         where: {
-          token: token,
+          token: authToken,
         },
       });
       if (!tokenInfo) {
         // If token exists in any case the force expire the token
-        await this.logout(token);
+        await this.logout(authToken);
         throw new UnauthorizedException('This is a invalid token.');
       }
       if (tokenInfo.token_expired || tokenInfo.refresh_token_expired) {
-        await this.logout(token);
+        await this.logout(authToken);
         throw new UnauthorizedException(
           'The token provided is already expired.',
         );
       }
       const decodedTokenInfo: any =
-        await this.pasetoProvider.decodeEncryptedToken(token, tokenInfo.key);
+        await this.pasetoProvider.decodeEncryptedToken(authToken, tokenInfo.key);
       const userInfo = await this.userService.findUserByIdentity(
         decodedTokenInfo.user_id,
       );
       if (!userInfo) {
         // If token exists in any case the force expire the token
-        await this.logout(token);
+        await this.logout(authToken);
         throw new UnauthorizedException(
           'No user has been assigned this token.',
         );
