@@ -1,4 +1,6 @@
 import {
+  BeforeInsert,
+  BeforeUpdate,
   Column,
   Entity,
   Index,
@@ -6,9 +8,9 @@ import {
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
-import { Address } from './organization.address.entity';
-import { Contact } from './organization.contact.entity';
-import { SocialProfile } from './organization.social.entity';
+import { OrgAddress } from './organization.address.entity';
+import { OrgContact } from './organization.contact.entity';
+import { OrgSocialProfile } from './organization.social.entity';
 
 @Entity({ name: 'organizations' })
 @Index(['id'], { unique: true })
@@ -20,35 +22,48 @@ export class Organization {
   name: string;
 
   @Column({ unique: true, nullable: false })
-  contact_email: string;
+  private contact_email: string;
 
-  @OneToMany(() => Address, (address) => address.organization_id, {
+  get email(): string {
+    return this.contact_email;
+  }
+
+  set email(value: string) {
+    this.contact_email = value.toLowerCase();
+  }
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  private convertEmailToLowerCase() {
+    if (this.contact_email) {
+      this.contact_email = this.contact_email.toLowerCase();
+    }
+  }
+
+  @OneToMany(() => OrgAddress, (address) => address.organization_id, {
     cascade: true,
   })
-  address: Relation<Address[]>;
+  address: Relation<OrgAddress[]>;
 
-  @OneToMany(() => Contact, (contact) => contact.organization_id, {
+  @OneToMany(() => OrgContact, (contact) => contact.organization_id, {
     cascade: true,
   })
-  contact: Relation<Contact[]>;
+  contact: Relation<OrgContact[]>;
 
   @OneToMany(
-    () => SocialProfile,
+    () => OrgSocialProfile,
     (socialProfile) => socialProfile.organization_id,
     {
       cascade: true,
     },
   )
-  social_profiles: Relation<SocialProfile[]>;
+  social_profiles: Relation<OrgSocialProfile[]>;
 
   @Column({ nullable: true })
   logo: string;
 
-  @Column({ default: false })
+  @Column({ default: true })
   is_enabled: boolean;
-
-  @Column({ default: false })
-  is_activated: boolean;
 
   @Column({ default: false })
   is_deleted: boolean;
@@ -58,9 +73,6 @@ export class Organization {
 
   @Column({ type: 'timestamp', nullable: true })
   disabled_on: Date;
-
-  @Column({ type: 'timestamp', nullable: true })
-  activated_on: Date;
 
   @Column({ type: 'timestamp', nullable: true })
   deleted_on: Date;
@@ -75,5 +87,3 @@ export class Organization {
   })
   updated_on: Date;
 }
-
-// export class Organization {}

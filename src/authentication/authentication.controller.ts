@@ -1,0 +1,79 @@
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Headers,
+  Ip,
+  NotAcceptableException,
+  Post,
+  Session,
+  UseGuards,
+} from '@nestjs/common';
+import { AuthenticationService } from './authentication.service';
+import { LoginDto } from './dto/request.dtos/login.dto';
+import { Serialize } from 'src/interceptors/serialize.interceptor';
+import { LoginResponseDto } from './dto/response.dtos/authenticate.login.response.dto';
+import { AuthenticateResponseDto } from './dto/response.dtos/authenticate.response.dto';
+import { RefreshLoginResponseDto } from './dto/response.dtos/authenticate.refresh.response.dto';
+import { LogoutResponseDto } from './dto/response.dtos/authenticate.logout.response.dto';
+import { AuthGuard } from 'src/guards/auth.guard';
+import { Public } from '../decorators/public.decorator';
+
+@Controller('authenticate')
+export class AuthenticationController {
+  constructor(private readonly authenticationService: AuthenticationService) {}
+
+  @Public()
+  @Serialize(LoginResponseDto)
+  @Post('login')
+  login(
+    @Ip() ip: string,
+    @Headers() headers: any,
+    @Body() payload: LoginDto,
+    @Session() session: any,
+  ) {
+    return this.authenticationService.login(ip, headers, payload, session);
+  }
+
+  @Public() //TODO: Do we need to make this call public?
+  @Serialize(RefreshLoginResponseDto)
+  @Get('refresh')
+  getRefreshToken(
+    @Ip() ip: string,
+    @Headers() headers: any,
+    @Session() session: any,
+  ) {
+    const refreshToken = headers.authorization;
+    if (!refreshToken) {
+      throw new NotAcceptableException('This is not a valid call.');
+    }
+    return this.authenticationService.refreshToken(
+      refreshToken,
+      ip,
+      headers,
+      session,
+    );
+  }
+
+  @UseGuards(AuthGuard)
+  @Serialize(AuthenticateResponseDto)
+  @Get()
+  authenticate(@Headers() headers: any) {
+    const token = headers.authorization;
+    if (!token) {
+      throw new NotAcceptableException('This is not a valid call.');
+    }
+    return this.authenticationService.authenticate(token);
+  }
+
+  @Serialize(LogoutResponseDto)
+  @Delete('logout')
+  logout(@Headers() headers: any) {
+    const token = headers.authorization;
+    if (!token) {
+      throw new NotAcceptableException('This is not a valid call.');
+    }
+    return this.authenticationService.logout(token);
+  }
+}

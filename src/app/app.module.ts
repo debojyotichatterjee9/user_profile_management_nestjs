@@ -4,18 +4,36 @@ import { Contact } from 'src/user/entities/user.contact.entity';
 import { Identification } from 'src/user/entities/user.identification.entity';
 import { SocialProfile } from 'src/user/entities/user.social.entity';
 import { Address } from '../user/entities/user.address.entity';
-import { Authentication } from '../user/entities/user.authentication.entity';
-import { Avatar } from '../user/entities/user.avatar.entity';
 import { User } from '../user/entities/user.entity';
-import { Location } from '../user/entities/user.location.entity';
 import { MetaData } from '../user/entities/user.metadata.entity';
-import { Name } from '../user/entities/user.name.entity';
-import { Timezone } from '../user/entities/user.timezone.entity';
 import { UserModule } from '../user/user.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { Organization } from 'src/organization/entities/organization.entity';
+import { OrgAddress } from 'src/organization/entities/organization.address.entity';
+import { OrgContact } from 'src/organization/entities/organization.contact.entity';
+import { OrgSocialProfile } from 'src/organization/entities/organization.social.entity';
+import { OrganizationModule } from 'src/organization/organization.module';
+import { AuthenticationModule } from 'src/authentication/authentication.module';
+import { Authentication } from 'src/authentication/entities/authentication.entity';
+import { ConfigModule } from '@nestjs/config';
+import configuration from 'src/configuration/configuration';
+import { ScheduleModule } from '@nestjs/schedule';
+import { AdminModule } from 'src/admin/admin.module';
+import { Permission } from 'src/admin/entities/permission.entity';
+import { Role } from 'src/admin/entities/role.entity';
+import { Admin } from 'typeorm';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from '../guards/auth.guard';
+import { RolesGuard } from '../guards/roles.guard';
+
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      load: [configuration],
+      isGlobal: true,
+    }),
+    ScheduleModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
@@ -29,24 +47,41 @@ import { AppService } from './app.service';
       synchronize: true,
       logging: true,
       entities: [
-        Name,
+        Admin,
+        Permission,
+        Role,
         Authentication,
-        Identification,
-        Location,
-        Timezone,
+        User,
         Address,
         Contact,
+        Identification,
         SocialProfile,
-        Avatar,
         MetaData,
-        User,
+        Organization,
+        OrgAddress,
+        OrgContact,
+        OrgSocialProfile,
       ],
       subscribers: [],
       migrations: [],
     }),
+    AdminModule,
+    AuthenticationModule,
     UserModule,
+    OrganizationModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
+  exports: [],
 })
 export class AppModule {}

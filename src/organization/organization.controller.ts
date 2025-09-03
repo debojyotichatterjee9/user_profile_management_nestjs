@@ -1,42 +1,58 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
 } from '@nestjs/common';
 import { OrganizationService } from './organization.service';
-import { CreateOrganizationDto } from './dto/create-organization.dto';
-import { UpdateOrganizationDto } from './dto/update-organization.dto';
+import { CreateOrganizationDto } from './dto/request.dtos/create.organization.dto';
+import { Serialize } from 'src/interceptors/serialize.interceptor';
+import { CreateOrganizationResponseDto } from './dto/response.dtos/create.organization.response.dto';
+import { UpdateOrganizationDto } from './dto/request.dtos/update.organization.dto';
+import { PaginationQueryParams } from './dto/request.dtos/fetch.organization.list.dto';
+import { OrganizationListResponseDto } from './dto/response.dtos/fetch.organization.list.response.dto';
+import { UpdateOrganizationResponseDto } from './dto/response.dtos/update.organization.response.dto';
+import { DeleteOrganizationResponseDto } from './dto/response.dtos/delete.organization.response.dto';
 
 @Controller('organization')
 export class OrganizationController {
   constructor(private readonly organizationService: OrganizationService) {}
 
-  @Post()
-  create(@Body() createOrganizationDto: CreateOrganizationDto) {
-    return this.organizationService.create(createOrganizationDto);
+  @Serialize(CreateOrganizationResponseDto)
+  @Post('create')
+  async create(@Body() createOrganizationDto: CreateOrganizationDto) {
+    return await this.organizationService.create(createOrganizationDto);
   }
 
-  @Get()
-  findAll() {
-    return this.organizationService.findAll();
+  @Serialize(OrganizationListResponseDto)
+  @Get('list')
+  findAll(
+    @Query() queryParams: PaginationQueryParams,
+  ): Promise<OrganizationListResponseDto> {
+    return this.organizationService.findAll(queryParams);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.organizationService.findOne(+id);
+    return this.organizationService.findOne(id);
   }
 
+  @Serialize(UpdateOrganizationResponseDto)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOrganizationDto: UpdateOrganizationDto) {
-    return this.organizationService.update(+id, updateOrganizationDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateOrganizationDto: UpdateOrganizationDto,
+  ) {
+    return this.organizationService.update(id, updateOrganizationDto);
   }
 
+  @Serialize(DeleteOrganizationResponseDto)
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.organizationService.remove(+id);
+    return this.organizationService.remove(id);
   }
 }

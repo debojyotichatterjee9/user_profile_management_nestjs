@@ -1,14 +1,10 @@
 import {
   Column,
   Entity,
-  JoinColumn,
   ManyToOne,
-  OneToOne,
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
-import { Location } from './user.location.entity';
-import { Timezone } from './user.timezone.entity';
 import { User } from './user.entity';
 
 @Entity({ name: 'user_address' })
@@ -43,13 +39,17 @@ export class Address {
   @Column({ nullable: true, default: '' })
   zipcode: string;
 
-  @OneToOne(() => Location, { cascade: true, eager: true })
-  @JoinColumn()
-  location: Location;
+  @Column({ nullable: true })
+  latitude: string;
 
-  @OneToOne(() => Timezone, { cascade: true, eager: true })
-  @JoinColumn()
-  timezone: Timezone;
+  @Column({ nullable: true })
+  longitude: string;
+
+  @Column({ nullable: true })
+  offset: string;
+
+  @Column({ nullable: true })
+  zone: string;
 
   @Column({ default: false })
   is_default: boolean;

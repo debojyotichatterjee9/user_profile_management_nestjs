@@ -13,6 +13,19 @@ export class MetaDataDto {
   @IsString()
   theme_code?: string;
 
+  @IsOptional()
   @IsBoolean()
   is_super_admin?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  is_enabled?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  is_activated?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  is_deleted?: boolean;
 }

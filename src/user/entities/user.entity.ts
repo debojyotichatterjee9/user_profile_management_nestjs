@@ -1,5 +1,7 @@
 import * as crypto from 'crypto';
 import {
+  BeforeInsert,
+  BeforeUpdate,
   Column,
   Entity,
   Index,
@@ -40,11 +42,30 @@ export class User {
   @Column({ unique: true, nullable: false })
   email: string;
 
+  get user_email(): string {
+    return this.email;
+  }
+
+  set user_email(value: string) {
+    this.email = value.toLowerCase();
+  }
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  private convertEmailToLowerCase() {
+    if (this.email) {
+      this.email = this.email.toLowerCase();
+    }
+  }
+
   @Column({ nullable: true })
   username: string;
 
   @Column({ type: 'uuid', default: NIL_UUID })
   organization_id: string;
+
+  @Column({ type: 'uuid', default: NIL_UUID })
+  role_id: string;
 
   @Column({ nullable: true })
   secret_hash: string;
@@ -71,7 +92,7 @@ export class User {
   @Column({ nullable: true })
   avatar: string;
 
-  @OneToOne(() => MetaData, (metaData) => metaData.entity_id, {
+  @OneToOne(() => MetaData, (metaData) => metaData.user_id, {
     cascade: true,
     eager: true,
   })

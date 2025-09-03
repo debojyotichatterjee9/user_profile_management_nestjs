@@ -1,0 +1,30 @@
+{
+  "docwriter.style": "Doxygen",
+  "docwriter.progress.trackFunctions": true,
+  "docwriter.progress.trackMethods": false,
+  "docwriter.hotkey.mac": "⌥ + .",
+  "conventionalCommits.scopes": [
+    "USRPRFNST-10",
+    "86cxr5bu6",
+    "86cxuer2a",
+    "86cxr5buj",
+    "86cxvxyc9",
+    "CU-86cxvxyc9",
+    "CU-86cxx8yqr",
+    "CU-86cy71qu2",
+    "CU-86cy71qu2",
+    "CU-86cy71qud"
+  ],
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "server": "localhost",
+      "port": 5432,
+      "driver": "PostgreSQL",
+      "name": "My Connection PG",
+      "database": "usr_mgmt_nest",
+      "username": "postgres",
+      "password": "postgres"
+    }
+  ]
+}
